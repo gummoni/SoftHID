@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +31,7 @@ namespace WindowsFormsApplication11
                 controller.MouseRightClick();
 
                 //LogReaderチェック
+                resp.Clear();
                 using (var logger = new LogReader("test.log", Encoding.GetEncoding(932)))
                 {
                     logger.ReadLineRecieved += Logger_ReadLineRecieved;
@@ -52,49 +50,36 @@ namespace WindowsFormsApplication11
                     logger.ReadLineRecieved -= Logger_ReadLineRecieved;
                 }
 
-                if (2 != console.Count)
+                if (2 != resp.Count)
                 {
                     throw new InvalidProgramException();
                 }
-                if ("hello" != console[0])
+                if ("hello" != resp[0])
                 {
                     throw new InvalidProgramException();
                 }
-                if ("world" != console[1])
+                if ("world" != resp[1])
                 {
                     throw new InvalidProgramException();
                 }
+                resp.Clear();
+
+                //Consoleチェック
+                var con = new Console<GUI>(controller);
+                foreach (var line in con.Help())
+                {
+                    Console.WriteLine(line);
+                }
+                con.Execute("MouseMoveAbsolute 50,100");
+                con.Execute("MouseLeftClick");
+                con.Execute("    KeyPress Foo bar\r\n");
             }
         }
 
-        List<string> console = new List<string>();
+        List<string> resp = new List<string>();
         private void Logger_ReadLineRecieved(object sender, string e)
         {
-            console.Add(e);
+            resp.Add(e);
         }
     }
-
-    public static class Convert
-    {
-        public static object Parse(Type type, string value)
-        {
-            if (type == typeof(string)) return value;
-            if (type == typeof(byte)) return byte.Parse(value);
-            if (type == typeof(sbyte)) return sbyte.Parse(value);
-            if (type == typeof(ushort)) return ushort.Parse(value);
-            if (type == typeof(short)) return short.Parse(value);
-            if (type == typeof(uint)) return uint.Parse(value);
-            if (type == typeof(int)) return int.Parse(value);
-            if (type == typeof(ulong)) return ulong.Parse(value);
-            if (type == typeof(long)) return long.Parse(value);
-            if (type == typeof(DateTime)) return DateTime.Parse(value);
-            if (type == typeof(TimeSpan)) return TimeSpan.Parse(value);
-            throw new InvalidCastException($"{type.Name}: {value}");
-        }
-    }
-
-
-
-
-
 }
