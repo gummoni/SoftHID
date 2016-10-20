@@ -33,12 +33,16 @@ namespace WindowsFormsApplication11
         /// <summary>
         /// タスクメイン
         /// </summary>
-        async void TaskMain()
+        void TaskMain()
         {
             while (isPower)
             {
-                var line = await streamReader.ReadLineAsync();
-                ReadLineRecieved?.Invoke(this, line);
+                while (!streamReader.EndOfStream && isPower)
+                {
+                    var line = streamReader.ReadLine();
+                    ReadLineRecieved?.Invoke(this, line);
+                }
+                Task.Delay(100).Wait();
             }
         }
 
@@ -48,7 +52,7 @@ namespace WindowsFormsApplication11
         public void Dispose()
         {
             isPower = false;
-            task.Dispose();
+            task.Wait();
             streamReader.Dispose();
             fileStream.Dispose();
         }

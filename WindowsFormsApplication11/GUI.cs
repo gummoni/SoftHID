@@ -11,7 +11,7 @@ namespace WindowsFormsApplication11
     /// ターゲットウィンドウの操作を行うクラス
     /// できる事：マウス・キーボード・画面キャプチャ
     /// </summary>
-    public class WindowController
+    public class GUI : IDisposable
     {
         #region "p/invoke"
         [DllImport("user32", SetLastError = true)]
@@ -61,9 +61,14 @@ namespace WindowsFormsApplication11
         /// ターゲットウィンドウを取得する
         /// </summary>
         /// <param name="processName"></param>
-        public WindowController(string processName)
+        public GUI(string processName)
         {
             proc = Process.GetProcesses().First(_ => _.ProcessName == processName);
+        }
+
+        public void Dispose()
+        {
+            proc.Dispose();
         }
 
         /// <summary>

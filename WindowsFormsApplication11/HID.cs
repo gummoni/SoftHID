@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -31,6 +32,14 @@ namespace WindowsFormsApplication11
             public int ExtraInfo;
         };
 
+        [StructLayout(LayoutKind.Sequential)]
+        struct HardwareInput
+        {
+            public int Message;
+            public short ParamL;
+            public short ParamH;
+        };
+
         [StructLayout(LayoutKind.Explicit)]
         struct INPUT
         {
@@ -54,11 +63,11 @@ namespace WindowsFormsApplication11
         {
             MOUSE = 0,                          // マウスイベント
             KEYBOARD = 1,                       // キーボードイベント
+            HARDWARE = 2,                       // ハードウェアイベント
         }
 
         enum MouseStroke
         {
-            ABSOLUTE = 0x8000,
             MOVE = 0x0001,
             LEFT_DOWN = 0x0002,
             LEFT_UP = 0x0004,
@@ -69,6 +78,8 @@ namespace WindowsFormsApplication11
             X_DOWN = 0x0080,
             X_UP = 0x0100,
             WHEEL = 0x0800,
+            VIRTUALDESK = 0x4000,
+            ABSOLUTE = 0x8000,
         }
 
         enum KeyboardStroke
@@ -200,8 +211,16 @@ namespace WindowsFormsApplication11
         #endregion
 
         #region "mouse"
-        public static void MouseMoveAbsolute(int x, int y) => MouseCommand(x, y, 0, MouseStroke.MOVE | MouseStroke.ABSOLUTE);
-        public static void MouseMoveRelative(int x, int y) => MouseCommand(x, y, 0, MouseStroke.MOVE);
+        //public static void MouseMoveAbsolute(int x, int y) => MouseCommand(x, y, 0, MouseStroke.MOVE | MouseStroke.ABSOLUTE);
+        //public static void MouseMoveRelative(int x, int y) => MouseCommand(x, y, 0, MouseStroke.MOVE);
+        public static void MouseMoveAbsolute(int x, int y) => Cursor.Position = new Point(x, y);
+        public static void MouseMoveRelative(int x, int y)
+        {
+            var pos = Cursor.Position;
+            pos.X += x;
+            pos.Y += y;
+            Cursor.Position = pos;
+        }
         public static void MouseLeftDown() => MouseCommand(0, 0, 0, MouseStroke.LEFT_DOWN);
         public static void MouseLeftUp() => MouseCommand(0, 0, 0, MouseStroke.LEFT_UP);
         public static void MouseRightDown() => MouseCommand(0, 0, 0, MouseStroke.RIGHT_DOWN);
