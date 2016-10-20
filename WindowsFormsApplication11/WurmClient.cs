@@ -69,44 +69,37 @@ namespace WindowsFormsApplication11
         [Command]
         public void Action(string actionScript, string flagments)
         {
-            var arguments = flagments.Trim().Split('|');
-
-            foreach (var flag in arguments)
+            //スクリプト実行
+            if (ParseFlagments(flagments))
             {
-                string pattern = "^[ \t]*!";
-                var isNot = Regex.IsMatch(flag, pattern);
-                var _flag = Regex.Replace(flag, pattern, "").Trim();
-                var data = _flag.Trim().Split('.').Select(_ => _.Trim()).ToArray();
-                if (data.Length != 2) throw new InvalidDataException(flag);
+                var lines = PreDecode(actionScript + ".txt");
+                Execute(lines);
+            }
+        }
 
-                if (isNot)
+        /// <summary>
+        /// 状態フラグ
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="flagments"></param>
+        [Command]
+        public void Flag(string state, string flagments)
+        {
+            var split = state.Split('.');
+
+            if (ParseFlagments(flagments))
+            {
+                //フラグON
+                StateDic[split[0]] = split[1];
+            }
+            else
+            {
+                //フラグOFF
+                if (StateDic.ContainsKey(split[0]))
                 {
-                    if (StateDic.ContainsKey(data[0]))
-                    {
-                        if (StateDic[data[0]] == data[1])
-                        {
-                            //状態一致
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    if (!StateDic.ContainsKey(data[0]))
-                    {
-                        //状態が存在しない
-                        return;
-                    }
-                    if (StateDic[data[0]] != data[1])
-                    {
-                        //状態不一致
-                        return;
-                    }
+                    StateDic.Remove(split[0]);
                 }
             }
-            //スクリプト実行
-            var lines = PreDecode(actionScript + ".txt");
-            Execute(lines);
         }
 
         /// <summary>
@@ -195,6 +188,51 @@ namespace WindowsFormsApplication11
                 if (!isPower) break;
                 console.Execute(line);
             }
+        }
+
+        /// <summary>
+        /// フラグ解析
+        /// </summary>
+        /// <param name="flagments"></param>
+        /// <returns></returns>
+        bool ParseFlagments(string flagments)
+        {
+            var arguments = flagments.Trim().Split('|');
+
+            foreach (var flag in arguments)
+            {
+                string pattern = "^[ \t]*!";
+                var isNot = Regex.IsMatch(flag, pattern);
+                var _flag = Regex.Replace(flag, pattern, "").Trim();
+                var data = _flag.Trim().Split('.').Select(_ => _.Trim()).ToArray();
+                if (data.Length != 2) throw new InvalidDataException(flag);
+
+                if (isNot)
+                {
+                    if (StateDic.ContainsKey(data[0]))
+                    {
+                        if (StateDic[data[0]] == data[1])
+                        {
+                            //状態一致
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!StateDic.ContainsKey(data[0]))
+                    {
+                        //状態が存在しない
+                        return false;
+                    }
+                    if (StateDic[data[0]] != data[1])
+                    {
+                        //状態不一致
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
     }
