@@ -66,7 +66,7 @@ namespace WindowsFormsApplication11
             proc = Process.GetProcesses().First(_ => _.ProcessName == processName);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             proc.Dispose();
         }

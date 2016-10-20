@@ -65,7 +65,7 @@ namespace WindowsFormsApplication11
                 resp.Clear();
 
                 //Consoleチェック
-                var con = new Console<GUI>(controller);
+                var con = new ObjectConsole<GUI>(controller);
                 foreach (var line in con.Help())
                 {
                     Console.WriteLine(line);

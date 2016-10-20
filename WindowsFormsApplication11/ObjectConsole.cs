@@ -12,7 +12,7 @@ namespace WindowsFormsApplication11
     /// 　パラメータ間はコンマ区切り
     /// </summary>
     /// <typeparam name="MODEL"></typeparam>
-    public class Console<MODEL>
+    public class ObjectConsole<MODEL>
     {
         MODEL obj;
         MethodInfo[] GetMethods() => typeof(MODEL).GetMethods();
@@ -21,7 +21,7 @@ namespace WindowsFormsApplication11
         /// コンストラクタ処理
         /// </summary>
         /// <param name="model"></param>
-        public Console(MODEL model)
+        public ObjectConsole(MODEL model)
         {
             obj = model;
         }
