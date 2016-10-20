@@ -63,7 +63,8 @@ namespace WindowsFormsApplication11
         /// <param name="processName"></param>
         public GUI(string processName)
         {
-            proc = Process.GetProcesses().First(_ => _.ProcessName == processName);
+            var procs = Process.GetProcesses();
+            proc = procs.First(_ => _.ProcessName == processName);
         }
 
         public virtual void Dispose()
@@ -100,12 +101,19 @@ namespace WindowsFormsApplication11
             return img;
         }
 
+        [Command]
         public void Sleep(int delay) => Thread.Sleep(delay);
+        [Command]
         public void WindowActivate() => SetForegroundWindow(proc.MainWindowHandle);
+        [Command]
         public void WindowKill() => proc.Kill();
+        [Command]
         public void KeyPress(string message) => HID.KeyPress(message);
+        [Command]
         public void KeyDown(string message) => HID.KeyDown(message);
+        [Command]
         public void KeyUp(string message) => HID.KeyUp(message);
+        [Command]
         public void MouseMoveAbsolute(int x, int y)
         {
             RECT rect;
@@ -115,8 +123,11 @@ namespace WindowsFormsApplication11
             }
             HID.MouseMoveAbsolute(rect.left + x, rect.top + y);
         }
+        [Command]
         public void MouseMoveRelative(int x, int y) => HID.MouseMoveRelative(x, y);
+        [Command]
         public void MouseLeftClick() => HID.MouseLeftClick();
+        [Command]
         public void MouseRightClick() => HID.MouseRightClick();
     }
 }

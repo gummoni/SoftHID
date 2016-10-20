@@ -87,7 +87,15 @@ namespace WindowsFormsApplication11
             var spc = " ";
             var spt = ", ";
             var list = new List<string>();
-            return typeof(MODEL).GetMethods().Select(_ => $"{_.ReturnType.Name} {_.Name}({string.Join(spt, _.GetParameters().Select(__ => __.ParameterType + spc + __.Name))})").ToArray();
+            return typeof(MODEL)
+                .GetMethods()
+                .Where(_ => null != _.GetCustomAttribute<CommandAttribute>())
+                .Select(_ => $"{_.ReturnType.Name} {_.Name}({string.Join(spt, _.GetParameters().Select(__ => __.ParameterType + spc + __.Name))})")
+                .ToArray();
         }
+    }
+
+    public class CommandAttribute : Attribute
+    {
     }
 }

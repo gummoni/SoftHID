@@ -7,6 +7,7 @@ namespace WindowsFormsApplication11
     [DataContract]
     public class WurmSettingData
     {
+        #region "property"
         [DataMember]
         public string WindowName { get; set; }
         [DataMember]
@@ -15,21 +16,41 @@ namespace WindowsFormsApplication11
         public Encoding Encoding { get; set; } = Encoding.GetEncoding(932);
         [DataMember]
         public LogAnalyzeCollection PassiveList { get; set; } = new LogAnalyzeCollection();     //状態変化
-
-        WurmClient client;
-
-        public WurmSettingData()
+        #endregion
+        #region "public"
+        /// <summary>
+        /// アクティブスクリプト取得
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetActiveList() => Directory.GetFiles(scriptsDir, "*.txt", SearchOption.TopDirectoryOnly); //ユーザによる実行（格納されているのはスクリプトファイル名）
+        #endregion
+        #region "setting"
+        internal static string scriptsDir => Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+        static readonly string settingPath = "setting.txt";
+        public static WurmSettingData Load()
         {
-            client = new WurmClient(this);
+            if (!Directory.Exists(scriptsDir))
+            {
+                Directory.CreateDirectory(scriptsDir);
+            }
+
+            var json = (File.Exists(settingPath)) ? File.ReadAllText(settingPath) : "";
+            var model = Json.Parse<WurmSettingData>(json);
+            return (model == null) ? new WurmSettingData() : model;
         }
-
-
-        public void Dispose()
+        /// <summary>
+        /// 保存
+        /// </summary>
+        public void Save()
         {
-            client.Dispose();
+            var json = Json.ToString(this);
+            File.WriteAllText(settingPath, json);
         }
-
-        public string[] GetActiveList() => Directory.GetFiles(Directory.GetCurrentDirectory(), "*.txt", SearchOption.TopDirectoryOnly); //ユーザによる実行（格納されているのはスクリプトファイル名）
-
+        /// <summary>
+        /// クライアント作成
+        /// </summary>
+        /// <returns></returns>
+        public WurmClient Create() => new WurmClient(this);
+        #endregion
     }
 }

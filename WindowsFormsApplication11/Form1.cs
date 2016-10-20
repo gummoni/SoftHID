@@ -19,6 +19,69 @@ namespace WindowsFormsApplication11
 
         void button1_Click(object sender, EventArgs e)
         {
+            testwurm();
+        }
+
+        WurmSettingData settings;
+        WurmClient client;
+        void testwurm()
+        {
+            settings = WurmSettingData.Load();
+            settings.LogPath = "test.log";
+            settings.WindowName = "svchost";
+            settings.PassiveList.Add(new LogAnalyzeModel("hello", "Test.Hello"));
+            settings.PassiveList.Add(new LogAnalyzeModel("world", "Test2.World"));
+            settings.PassiveList.Add(new LogAnalyzeModel("foo", "Test.Foo"));
+            settings.PassiveList.Add(new LogAnalyzeModel("bar", "Test2.Bar"));
+            settings.PassiveList.Add(new LogAnalyzeModel("ok", "Test.ok"));
+            settings.PassiveList.Add(new LogAnalyzeModel("pk", "Test2.pk"));
+            settings.Save();
+            client = settings.Create();
+
+
+            var lines1 = new List<string>();
+            lines1.Add("action left, Test.Hello");
+            lines1.Add("action right, Test.Foo");
+            lines1.Add("action up, Test.Foo|Test2.Bar");
+            lines1.Add("action down, Test.Hello|Test2.World");
+            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "test.txt"), lines1);
+
+            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "left.txt"), "MouseMoveRelative -1,0");
+            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "right.txt"), "MouseMoveRelative +1,0");
+            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "up.txt"), "MouseMoveRelative 0,-1");
+            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "down.txt"), "MouseMoveRelative 0,+1");
+
+
+            client.StartScript("test.txt");
+
+            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+            {
+                sw.WriteLine("hello");
+            }
+            Task.Delay(500).Wait();
+
+            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+            {
+                sw.WriteLine("foo");
+            }
+            Task.Delay(500).Wait();
+
+            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+            {
+                sw.WriteLine("bar");
+            }
+            Task.Delay(500).Wait();
+
+            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+            {
+                sw.WriteLine("ok");
+                sw.WriteLine("pk");
+            }
+            Task.Delay(500).Wait();
+        }
+
+        void test()
+        { 
             Process.Start("notepad");
             Thread.Sleep(500);
 
