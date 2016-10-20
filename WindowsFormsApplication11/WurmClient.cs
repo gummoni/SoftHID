@@ -19,6 +19,7 @@ namespace WindowsFormsApplication11
         LogReader log;
         Task activeTask;
         bool isPower = false;
+        Dictionary<string, string[]> cacheScripts = new Dictionary<string, string[]>();
 
         /// <summary>
         /// コンストラクタ処理
@@ -115,6 +116,7 @@ namespace WindowsFormsApplication11
         public void AbortScript()
         {
             isPower = false;
+            cacheScripts.Clear();
         }
 
         /// <summary>
@@ -125,17 +127,23 @@ namespace WindowsFormsApplication11
         string[] PreDecode(string filename)
         {
             var path = Path.Combine(WurmSettingData.scriptsDir, filename);
-            var lines = File.ReadAllLines(path);
-            return lines.Select(_ =>
+
+            if (!cacheScripts.ContainsKey(path))
             {
-                //余分なスペースとコメント行を削除する
-                return Regex.Replace(_.Trim(), "^;", "");
-            })
-            .Where(_ =>
-            {
-                //空行は削除する
-                return !string.IsNullOrEmpty(_);
-            }).ToArray();
+                //キャッシュが無い場合
+                var lines = File.ReadAllLines(path);
+                cacheScripts[path] = lines.Select(_ =>
+                {
+                    //余分なスペースとコメント行を削除する
+                    return Regex.Replace(_.Trim(), "^;", "");
+                })
+                .Where(_ =>
+                {
+                    //空行は削除する
+                    return !string.IsNullOrEmpty(_);
+                }).ToArray();
+            }
+            return cacheScripts[path];
         }
 
         /// <summary>
