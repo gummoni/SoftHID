@@ -40,6 +40,7 @@ namespace WindowsFormsApplication11
         /// </summary>
         public override void Dispose()
         {
+            AbortScript();
             log.ReadLineRecieved -= Log_ReadLineRecieved;
             log.Dispose();
             base.Dispose();
@@ -72,17 +73,35 @@ namespace WindowsFormsApplication11
 
             foreach (var flag in arguments)
             {
-                var data = flag.Trim().Split('.').Select(_ => _.Trim()).ToArray();
+                string pattern = "^[ \t]*!";
+                var isNot = Regex.IsMatch(flag, pattern);
+                var _flag = Regex.Replace(flag, pattern, "").Trim();
+                var data = _flag.Trim().Split('.').Select(_ => _.Trim()).ToArray();
                 if (data.Length != 2) throw new InvalidDataException(flag);
-                if (!StateDic.ContainsKey(data[0]))
+
+                if (isNot)
                 {
-                    //状態が存在しない
-                    return;
+                    if (StateDic.ContainsKey(data[0]))
+                    {
+                        if (StateDic[data[0]] == data[1])
+                        {
+                            //状態一致
+                            return;
+                        }
+                    }
                 }
-                if (StateDic[data[0]] != data[1])
+                else
                 {
-                    //状態不一致
-                    return;
+                    if (!StateDic.ContainsKey(data[0]))
+                    {
+                        //状態が存在しない
+                        return;
+                    }
+                    if (StateDic[data[0]] != data[1])
+                    {
+                        //状態不一致
+                        return;
+                    }
                 }
             }
             //スクリプト実行
@@ -97,6 +116,14 @@ namespace WindowsFormsApplication11
         [Command]
         public void StartScript(string filename)
         {
+            if (null != activeTask)
+            {
+                var isFinish = (activeTask.IsCompleted || activeTask.IsCanceled || activeTask.IsFaulted);
+                if (!isFinish)
+                {
+                    return;
+                }
+            }
             activeTask = Task.Run(() =>
             {
                 isPower = true;
@@ -116,6 +143,7 @@ namespace WindowsFormsApplication11
         public void AbortScript()
         {
             isPower = false;
+            activeTask?.Wait();
             cacheScripts.Clear();
         }
 
@@ -144,6 +172,17 @@ namespace WindowsFormsApplication11
                 }).ToArray();
             }
             return cacheScripts[path];
+        }
+
+        /// <summary>
+        /// 状態変更
+        /// </summary>
+        /// <param name="state"></param>
+        [Command]
+        public void ChangeState(string state)
+        {
+            var split = state.Split('.');
+            StateDic[split[0]] = split[1];
         }
 
         /// <summary>

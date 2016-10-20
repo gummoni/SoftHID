@@ -36,48 +36,49 @@ namespace WindowsFormsApplication11
             settings.PassiveList.Add(new LogAnalyzeModel("ok", "Test.ok"));
             settings.PassiveList.Add(new LogAnalyzeModel("pk", "Test2.pk"));
             settings.Save();
-            client = settings.Create();
-
 
             var lines1 = new List<string>();
-            lines1.Add("action left, Test.Hello");
-            lines1.Add("action right, Test.Foo");
-            lines1.Add("action up, Test.Foo|Test2.Bar");
-            lines1.Add("action down, Test.Hello|Test2.World");
+            lines1.Add("action left , Test.Hello | !DO.LEFT");
+            lines1.Add("action right, Test.Foo   | !DO.RIGHT   | !DO.UP");
+            lines1.Add("action up   , Test.Foo   | Test2.Bar   | !DO.UP");
+            lines1.Add("action down , Test.Hello | Test2.World | !DO.DOWN");
             File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "test.txt"), lines1);
 
-            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "left.txt"), "MouseMoveRelative -1,0");
-            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "right.txt"), "MouseMoveRelative +1,0");
-            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "up.txt"), "MouseMoveRelative 0,-1");
-            File.WriteAllText(Path.Combine(WurmSettingData.scriptsDir, "down.txt"), "MouseMoveRelative 0,+1");
+            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "left.txt"), new string[] { "MouseMoveRelative -100,0", "ChangeState DO.LEFT" });
+            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "right.txt"), new string[] { "MouseMoveRelative +100,0", "ChangeState DO.RIGHT" });
+            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "up.txt"), new string[] { "MouseMoveRelative 0,-100", "ChangeState DO.UP" });
+            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "down.txt"), new string[] { "MouseMoveRelative 0,+100", "ChangeState DO.DOWN" });
 
 
-            client.StartScript("test.txt");
-
-            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+            using (client = settings.Create())
             {
-                sw.WriteLine("hello");
-            }
-            Task.Delay(500).Wait();
+                client.StartScript("test.txt");
 
-            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-            {
-                sw.WriteLine("foo");
-            }
-            Task.Delay(500).Wait();
+                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+                {
+                    sw.WriteLine("hello");
+                }
+                Task.Delay(500).Wait();
 
-            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-            {
-                sw.WriteLine("bar");
-            }
-            Task.Delay(500).Wait();
+                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+                {
+                    sw.WriteLine("foo");
+                }
+                Task.Delay(500).Wait();
 
-            using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-            {
-                sw.WriteLine("ok");
-                sw.WriteLine("pk");
+                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+                {
+                    sw.WriteLine("bar");
+                }
+                Task.Delay(500).Wait();
+
+                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
+                {
+                    sw.WriteLine("ok");
+                    sw.WriteLine("pk");
+                }
+                Task.Delay(500).Wait();
             }
-            Task.Delay(500).Wait();
         }
 
         void test()
@@ -143,6 +144,11 @@ namespace WindowsFormsApplication11
         private void Logger_ReadLineRecieved(object sender, string e)
         {
             resp.Add(e);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            client.AbortScript();
         }
     }
 }
