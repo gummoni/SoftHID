@@ -20,12 +20,6 @@ namespace WindowsFormsApplication11
             }
         }
 
-        public void Check(string message)
-        {
-            foreach (var model in this)
-            {
-                model.Check(message);
-            }
-        }
+        public string[] Check(string message) => this.Where(_ => _.Check(message)).Select(_=>_.State).ToArray();
     }
 }

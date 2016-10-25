@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MouseKeyboardActivityMonitor, Version=4.0.5150.10665, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MouseKeyboardActivityMonitor.4.0.5150.10665\lib\net20\MouseKeyboardActivityMonitor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -67,6 +71,7 @@
     <Compile Include="GUI.cs" />
     <Compile Include="LogAnalyzeModel.cs" />
     <Compile Include="StateModel.cs" />
+    <Compile Include="tests.cs" />
     <Compile Include="WurmClient.cs" />
     <Compile Include="WurmSettingData.cs" />
     <EmbeddedResource Include="MainForm.resx">
@@ -81,6 +86,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

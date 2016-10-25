@@ -9,6 +9,7 @@ namespace WindowsFormsApplication11
         Regex filter;
         int onTime;
         DateTime activeTime;
+        bool oldActive = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -22,21 +23,40 @@ namespace WindowsFormsApplication11
                 return (0 < seconds) ? seconds : 0;
             }
         }
+        public bool IsSetFlag { get; }
 
         public PassiveModel(string regex, string ontime, string state)
         {
             filter = new Regex(regex);
             onTime = int.Parse(ontime);
-            State = state;
+            if (0 > state.IndexOf('!'))
+            {
+                State = state;
+                IsSetFlag = true;
+            }
+            else
+            {
+                State = state.Substring(1);
+                IsSetFlag = false;
+            }
         }
 
-        public void Check(string message)
+        public bool Check(string message)
         {
             if (filter.IsMatch(message))
             {
-                activeTime = DateTime.Now.AddSeconds(onTime);
+                activeTime = DateTime.Now.AddSeconds((IsSetFlag) ? onTime : 0);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsActive)));
             }
+
+            //Active状態に変化があったらTrueを返す
+            var newactive = IsActive;
+            if (oldActive != newactive)
+            {
+                oldActive = newactive;
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -1,152 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApplication11
 {
     public partial class MainForm : Form
     {
-
         public MainForm()
         {
             InitializeComponent();
-        }
-
-        void button1_Click(object sender, EventArgs e)
-        {
-            testwurm();
-        }
-
-        WurmSettingData settings;
-        WurmClient client;
-        void testwurm()
-        {
-            settings = WurmSettingData.Load();
-            settings.LogPath = "test.log";
-            settings.WindowName = "svchost";
-            settings.PassiveList.Add(new LogAnalyzeModel("hello", "Test.Hello"));
-            settings.PassiveList.Add(new LogAnalyzeModel("world", "Test2.World"));
-            settings.PassiveList.Add(new LogAnalyzeModel("foo", "Test.Foo"));
-            settings.PassiveList.Add(new LogAnalyzeModel("bar", "Test2.Bar"));
-            settings.PassiveList.Add(new LogAnalyzeModel("ok", "Test.ok"));
-            settings.PassiveList.Add(new LogAnalyzeModel("pk", "Test2.pk"));
-            settings.Save();
-
-            var lines1 = new List<string>();
-            lines1.Add("action left , Test.Hello | !DO.LEFT");
-            lines1.Add("action right, Test.Foo   | !DO.RIGHT   | !DO.UP");
-            lines1.Add("action up   , Test.Foo   | Test2.Bar   | !DO.UP");
-            lines1.Add("action down , Test.Hello | Test2.World | !DO.DOWN");
-            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "test.txt"), lines1);
-
-            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "left.txt"), new string[] { "MouseMoveRelative -100,0", "ChangeState DO.LEFT" });
-            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "right.txt"), new string[] { "MouseMoveRelative +100,0", "ChangeState DO.RIGHT" });
-            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "up.txt"), new string[] { "MouseMoveRelative 0,-100", "ChangeState DO.UP" });
-            File.WriteAllLines(Path.Combine(WurmSettingData.scriptsDir, "down.txt"), new string[] { "MouseMoveRelative 0,+100", "ChangeState DO.DOWN" });
-
-
-            using (client = settings.Create())
-            {
-                client.StartScript("test.txt");
-
-                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-                {
-                    sw.WriteLine("hello");
-                }
-                Task.Delay(500).Wait();
-
-                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-                {
-                    sw.WriteLine("foo");
-                }
-                Task.Delay(500).Wait();
-
-                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-                {
-                    sw.WriteLine("bar");
-                }
-                Task.Delay(500).Wait();
-
-                using (var sw = new StreamWriter(settings.LogPath, true, Encoding.GetEncoding(932)))
-                {
-                    sw.WriteLine("ok");
-                    sw.WriteLine("pk");
-                }
-                Task.Delay(500).Wait();
-            }
-        }
-
-        void test()
-        { 
-            Process.Start("notepad");
-            Thread.Sleep(500);
-
-            using (var controller = new GUI("notepad"))
-            {
-                //HUD動作チェック
-                controller.WindowActivate();
-                controller.KeyPress("!!!!!hello World!\r\n");
-                controller.MouseMoveAbsolute(100, 100);
-                controller.MouseRightClick();
-
-                //LogReaderチェック
-                resp.Clear();
-                using (var logger = new LogReader("test.log", Encoding.GetEncoding(932)))
-                {
-                    logger.ReadLineRecieved += Logger_ReadLineRecieved;
-
-                    using (var sw = new StreamWriter("test.log", true, Encoding.GetEncoding(932)))
-                    {
-                        sw.WriteLine("hello");
-                    }
-                    Task.Delay(500).Wait();
-                    using (var sw = new StreamWriter("test.log", true, Encoding.GetEncoding(932)))
-                    {
-                        sw.WriteLine("world");
-                    }
-                    Task.Delay(500).Wait();
-
-                    logger.ReadLineRecieved -= Logger_ReadLineRecieved;
-                }
-
-                if (2 != resp.Count)
-                {
-                    throw new InvalidProgramException();
-                }
-                if ("hello" != resp[0])
-                {
-                    throw new InvalidProgramException();
-                }
-                if ("world" != resp[1])
-                {
-                    throw new InvalidProgramException();
-                }
-                resp.Clear();
-
-                //Consoleチェック
-                var con = new ObjectConsole<GUI>(controller);
-                foreach (var line in con.Help())
-                {
-                    Console.WriteLine(line);
-                }
-                con.Execute("MouseMoveAbsolute 50,100");
-                con.Execute("MouseLeftClick");
-                con.Execute("    KeyPress Foo bar\r\n");
-            }
-        }
-
-        List<string> resp = new List<string>();
-        private void Logger_ReadLineRecieved(object sender, string e)
-        {
-            resp.Add(e);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -154,7 +19,6 @@ namespace WindowsFormsApplication11
             loadLogFolder();
             loadPassiveEvent();
             loadPassiveCombat();
-            loadAction();
             loadMacro();
         }
 
@@ -164,38 +28,14 @@ namespace WindowsFormsApplication11
             savePassiveEvent();
             savePassiveCombat();
             saveMacro();
-            saveAction();
             loadMacro();
-            loadAction();
         }
 
         #region "GUI周りの設定"
         static readonly string logPathFile = "logFolder.txt";
         static readonly string passiveEventFile = "passive_event.txt";
         static readonly string passiveCombatFile = "passive_combat.txt";
-        static readonly string actionPath = "actions";
         static readonly string macroPath = "macros";
-
-        void loadAction()
-        {
-            //アクションデータの読込み
-            if (!Directory.Exists(actionPath))
-            {
-                Directory.CreateDirectory(actionPath);
-            }
-            var files = Directory.GetFiles(actionPath, "*.txt").Select(_ => Path.GetFileNameWithoutExtension(_)).ToArray();
-            cbAction.Items.Clear();
-            cbAction.Items.AddRange(files);
-        }
-
-        void saveAction()
-        {
-            //アクションデータの保存
-            var filename = $"{cbAction.Text}.txt";
-            var text = tbAction.Text;
-
-            File.WriteAllText(Path.Combine(actionPath, filename), text);
-        }
 
         void loadMacro()
         {
@@ -269,57 +109,48 @@ namespace WindowsFormsApplication11
         }
         #endregion
         #region "ログ監視"
-        bool isPower = true;
         PassiveCollection passiveList = new PassiveCollection();
-        Task watchTask;
-        Task logReadTask() => Task.Run(() =>
+        LogReader eventReader;
+        LogReader combatReader;
+
+        bool keyHandled = false;
+        void KeyListener_KeyDown(object sender, KeyEventArgs e)
         {
-            //ログ監視
-            var dt = DateTime.Now;
-            var eventPath = Path.Combine(tbLogPath.Text, $"_Event.{dt.Year}-{dt.Month}.txt");
-            var combatPath = Path.Combine(tbLogPath.Text, $"_Combat.{dt.Year}-{dt.Month}.txt");
-            if (!File.Exists(eventPath)) throw new FileNotFoundException($"{eventPath} が存在していません。");
-            if (!File.Exists(combatPath)) throw new FileNotFoundException($"{combatPath} が存在していません。");
+            //キー押下イベント
+            var evt = e.KeyData.ToString().ToUpper();
+            keyHandled = DoActive(evt);
+            e.Handled = keyHandled;
+        }
 
-            //開始
-            using (var eventReader = new LogReader(eventPath, Encoding.GetEncoding(932)))
-            using (var combatReader = new LogReader(combatPath, Encoding.GetEncoding(932)))
-            {
-                try
-                {
-                    eventReader.ReadLineRecieved += EventReader_ReadLineRecieved;
-                    combatReader.ReadLineRecieved += CombatReader_ReadLineRecieved;
-
-                    while (isPower)
-                    {
-                        Thread.Sleep(1);
-                        //TODO:アクティブ動作
-                    }
-                }
-                finally
-                {
-                    eventReader.ReadLineRecieved -= EventReader_ReadLineRecieved;
-                    combatReader.ReadLineRecieved -= CombatReader_ReadLineRecieved;
-                }
-            }
-        });
-
-        private void EventReader_ReadLineRecieved(object sender, string e)
+        void KeyListener_KeyUp(object sender, KeyEventArgs e)
         {
-            passiveList.Check(e);
+            //キー離れるイベント
+            var evt = "!" + e.KeyData.ToString().ToUpper();
+            DoActive(evt);
+            e.Handled = keyHandled;
+        }
+
+        void EventReader_ReadLineRecieved(object sender, string e)
+        {
+            //イベントログ受信イベント
             SetEventLog(e);
+            var events = passiveList.Check(e);
+            DoActive(events);
         }
 
         private void CombatReader_ReadLineRecieved(object sender, string e)
         {
-            passiveList.Check(e);
+            //コンバットログ受信イベント
             SetCombatLog(e);
+            passiveList.Check(e);
+            DoActive();
         }
 
         delegate void dlgSetEventLog(string message);
         delegate void dlgSetCombatLog(string message);
         void SetEventLog(string message)
         {
+            //イベントロク書き込み
             if (InvokeRequired)
             {
                 Invoke(new dlgSetCombatLog(SetEventLog), new[] { message });
@@ -331,6 +162,7 @@ namespace WindowsFormsApplication11
         }
         void SetCombatLog(string message)
         {
+            //コンバットログ書き込み
             if (InvokeRequired)
             {
                 Invoke(new dlgSetCombatLog(SetCombatLog), new[] { message });
@@ -346,11 +178,16 @@ namespace WindowsFormsApplication11
         void btStart_Click(object sender, EventArgs e)
         {
             //サポツール開始・停止
-            if (watchTask?.IsCompleted == false)
+            if (btStart.BackColor == Color.Lime)
             {
                 //停止
-                isPower = false;
-                btStart.BackColor = System.Drawing.Color.LightGray;
+                btStart.BackColor = Color.LightGray;
+
+                HID.KeyListener.Enabled = false;
+                HID.KeyListener.KeyUp -= KeyListener_KeyUp;
+                HID.KeyListener.KeyDown -= KeyListener_KeyDown;
+                eventReader.ReadLineRecieved -= EventReader_ReadLineRecieved;
+                combatReader.ReadLineRecieved -= CombatReader_ReadLineRecieved;
             }
             else
             {
@@ -366,9 +203,23 @@ namespace WindowsFormsApplication11
                 dgStatus.DataSource = null;
                 dgStatus.DataSource = states;
 
-                isPower = true;
-                watchTask = logReadTask();
-                btStart.BackColor = System.Drawing.Color.Lime;
+                btStart.BackColor = Color.Lime;
+
+                //ログ監視
+                var dt = DateTime.Now;
+                var eventPath = Path.Combine(tbLogPath.Text, $"_Event.{dt.Year}-{dt.Month}.txt");
+                var combatPath = Path.Combine(tbLogPath.Text, $"_Combat.{dt.Year}-{dt.Month}.txt");
+                if (!File.Exists(eventPath)) throw new FileNotFoundException($"{eventPath} が存在していません。");
+                if (!File.Exists(combatPath)) throw new FileNotFoundException($"{combatPath} が存在していません。");
+
+                //開始
+                eventReader = new LogReader(eventPath, Encoding.GetEncoding(932));
+                combatReader = new LogReader(combatPath, Encoding.GetEncoding(932));
+                HID.KeyListener.Enabled = true;
+                eventReader.ReadLineRecieved += EventReader_ReadLineRecieved;
+                combatReader.ReadLineRecieved += CombatReader_ReadLineRecieved;
+                HID.KeyListener.KeyDown += KeyListener_KeyDown;
+                HID.KeyListener.KeyUp += KeyListener_KeyUp;
             }
         }
 
@@ -376,18 +227,20 @@ namespace WindowsFormsApplication11
         {
             //1秒周期で画面更新
             dgStatus.Refresh();
+            DoActive("TIMER");
         }
 
-        void cbAction_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //アクションデータの読込み
-            tbAction.Text = File.ReadAllText(Path.Combine(actionPath, $"{cbAction.Text}.txt"));
-        }
-
-        void cbMacroSelect_SelectedIndexChanged(object sender, EventArgs e)
+        void cbMacro_SelectedIndexChanged(object sender, EventArgs e)
         {
             //マクロデータの読込み
             tbMacro.Text = File.ReadAllText(Path.Combine(macroPath, $"{cbMacro.Text}.txt"));
+        }
+
+        bool DoActive(params string[] eventCode)
+        {
+            //アクティブマクロ実行(変化のあったイベントのみ実行)
+            //TODO
+            return true;
         }
     }
 

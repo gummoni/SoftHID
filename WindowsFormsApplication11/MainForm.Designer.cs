@@ -48,14 +48,9 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.dgStatus = new System.Windows.Forms.DataGridView();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tcActive = new System.Windows.Forms.TabControl();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.tbAction = new System.Windows.Forms.TextBox();
-            this.cbAction = new System.Windows.Forms.ComboBox();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tbMacro = new System.Windows.Forms.TextBox();
             this.cbMacro = new System.Windows.Forms.ComboBox();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -68,9 +63,6 @@
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgStatus)).BeginInit();
             this.groupBox2.SuspendLayout();
-            this.tcActive.SuspendLayout();
-            this.tabPage4.SuspendLayout();
-            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -284,7 +276,8 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.tcActive);
+            this.groupBox2.Controls.Add(this.tbMacro);
+            this.groupBox2.Controls.Add(this.cbMacro);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
@@ -293,85 +286,31 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "アクティブ";
             // 
-            // tcActive
-            // 
-            this.tcActive.Controls.Add(this.tabPage4);
-            this.tcActive.Controls.Add(this.tabPage5);
-            this.tcActive.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tcActive.Location = new System.Drawing.Point(3, 15);
-            this.tcActive.Name = "tcActive";
-            this.tcActive.SelectedIndex = 0;
-            this.tcActive.Size = new System.Drawing.Size(359, 484);
-            this.tcActive.TabIndex = 0;
-            // 
-            // tabPage4
-            // 
-            this.tabPage4.Controls.Add(this.tbAction);
-            this.tabPage4.Controls.Add(this.cbAction);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(351, 458);
-            this.tabPage4.TabIndex = 2;
-            this.tabPage4.Text = "アクション";
-            this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // tbAction
-            // 
-            this.tbAction.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbAction.Location = new System.Drawing.Point(0, 20);
-            this.tbAction.Multiline = true;
-            this.tbAction.Name = "tbAction";
-            this.tbAction.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbAction.Size = new System.Drawing.Size(351, 438);
-            this.tbAction.TabIndex = 4;
-            // 
-            // cbAction
-            // 
-            this.cbAction.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cbAction.FormattingEnabled = true;
-            this.cbAction.Location = new System.Drawing.Point(0, 0);
-            this.cbAction.Name = "cbAction";
-            this.cbAction.Size = new System.Drawing.Size(351, 20);
-            this.cbAction.TabIndex = 3;
-            this.cbAction.SelectedIndexChanged += new System.EventHandler(this.cbAction_SelectedIndexChanged);
-            // 
-            // tabPage5
-            // 
-            this.tabPage5.Controls.Add(this.tbMacro);
-            this.tabPage5.Controls.Add(this.cbMacro);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(351, 458);
-            this.tabPage5.TabIndex = 1;
-            this.tabPage5.Text = "マクロ";
-            this.tabPage5.UseVisualStyleBackColor = true;
-            // 
-            // tbMacro
-            // 
-            this.tbMacro.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbMacro.Location = new System.Drawing.Point(3, 23);
-            this.tbMacro.Multiline = true;
-            this.tbMacro.Name = "tbMacro";
-            this.tbMacro.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbMacro.Size = new System.Drawing.Size(345, 432);
-            this.tbMacro.TabIndex = 2;
-            // 
-            // cbMacro
-            // 
-            this.cbMacro.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cbMacro.FormattingEnabled = true;
-            this.cbMacro.Location = new System.Drawing.Point(3, 3);
-            this.cbMacro.Name = "cbMacro";
-            this.cbMacro.Size = new System.Drawing.Size(345, 20);
-            this.cbMacro.TabIndex = 1;
-            this.cbMacro.SelectedIndexChanged += new System.EventHandler(this.cbMacroSelect_SelectedIndexChanged);
-            // 
             // timer1
             // 
             this.timer1.Enabled = true;
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // tbMacro
+            // 
+            this.tbMacro.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbMacro.Location = new System.Drawing.Point(3, 35);
+            this.tbMacro.Multiline = true;
+            this.tbMacro.Name = "tbMacro";
+            this.tbMacro.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.tbMacro.Size = new System.Drawing.Size(359, 464);
+            this.tbMacro.TabIndex = 4;
+            // 
+            // cbMacro
+            // 
+            this.cbMacro.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cbMacro.FormattingEnabled = true;
+            this.cbMacro.Location = new System.Drawing.Point(3, 15);
+            this.cbMacro.Name = "cbMacro";
+            this.cbMacro.Size = new System.Drawing.Size(359, 20);
+            this.cbMacro.TabIndex = 3;
+            this.cbMacro.SelectedIndexChanged += new System.EventHandler(this.cbMacro_SelectedIndexChanged);
             // 
             // MainForm
             // 
@@ -398,11 +337,7 @@
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgStatus)).EndInit();
             this.groupBox2.ResumeLayout(false);
-            this.tcActive.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
-            this.tabPage4.PerformLayout();
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage5.PerformLayout();
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -425,16 +360,11 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.DataGridView dgStatus;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TabControl tcActive;
-        private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.TextBox tbMacro;
-        private System.Windows.Forms.ComboBox cbMacro;
         private System.Windows.Forms.Button btSave;
         private System.Windows.Forms.Button btStart;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.TextBox tbAction;
-        private System.Windows.Forms.ComboBox cbAction;
+        private System.Windows.Forms.TextBox tbMacro;
+        private System.Windows.Forms.ComboBox cbMacro;
     }
 }
 

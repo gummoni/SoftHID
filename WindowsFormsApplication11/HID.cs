@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MouseKeyboardActivityMonitor;
+using MouseKeyboardActivityMonitor.WinApi;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -248,6 +250,12 @@ namespace WindowsFormsApplication11
             inp.Mouse.Time = 0;
             SendInput(1, ref inp, Marshal.SizeOf(inp));
         }
+        #endregion
+
+        #region "hook"
+        static GlobalHooker hooker = new GlobalHooker();
+        public static MouseHookListener MouseListener = new MouseHookListener(hooker);
+        public static KeyboardHookListener KeyListener = new KeyboardHookListener(hooker);
         #endregion
     }
 }
