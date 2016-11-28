@@ -23,6 +23,19 @@ namespace WurmMacro
         {
             //ログ受信
             var line = ((RecvLogEventArgs)e).Line;
+            if (tbLog.InvokeRequired)
+            {
+                tbLog.Invoke((dlgSetLog)SetLog, new[] { line });
+            }
+            else
+            {
+                SetLog(line);
+            }
+        }
+
+        delegate void dlgSetLog(string line);
+        void SetLog(string line)
+        {
             if (1000 < tbLog.TextLength)
             {
                 tbLog.Text = line + "\r\n";

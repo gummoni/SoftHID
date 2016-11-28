@@ -25,14 +25,15 @@ namespace MacroLib
     /// </summary>
     public class Client
     {
+        //Writing to d:\game\wurm\players\gummo\logs\_Friends.2016-11.txt
         readonly public string ProcessName = "jp2launcher";
         readonly string mattingPath = "matting.txt";
         readonly string scriptsPath = Path.Combine(Environment.CurrentDirectory, "Scripts");
         readonly string templatePath = Path.Combine(Environment.CurrentDirectory, "Templates");
         public string InstallPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "wurm", "players");
         public string UserName { get; set; } = "gummo";
-        string eventLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName)).Where(_ => _.Contains("event")).OrderBy(_ => File.GetLastAccessTime(_)).Reverse().ToArray()[0];
-        string combatLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName)).Where(_ => _.Contains("combat")).OrderBy(_ => File.GetLastAccessTime(_)).Reverse().ToArray()[0];
+        string eventLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Event.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
+        string combatLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Combat.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
         Thread timerThread { get; set; }
 
         readonly Encoding encode = Encoding.GetEncoding(932);
@@ -122,6 +123,7 @@ namespace MacroLib
             scripts = new Scripts(scriptsPath);
 
             //トリガー
+            if (!File.Exists(mattingPath)) File.WriteAllText(mattingPath, "");
             matchings = new Matchings(mattingPath);
             matchings.OnMatching += Matchings_OnMatching;
 
