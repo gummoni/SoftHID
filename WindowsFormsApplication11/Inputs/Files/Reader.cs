@@ -1,33 +1,35 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace WindowsFormsApplication11
+namespace MacroLib.Outputs.Files
 {
     /// <summary>
     /// ログ読込み
+    /// 参照しているテキストに書込みが発生したらReadLineRecievedイベントを発生させる
     /// </summary>
-    public class LogReader : IDisposable
+    public class Reader : IDisposable
     {
         FileStream fileStream;
         StreamReader streamReader;
         Task task;
         bool isPower = true;
 
-        public event EventHandler<string> ReadLineRecieved;
+        public event EventHandler OnReadLineRecieved;
 
         /// <summary>
         /// コンストラクタ処理
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="encoding"></param>
-        public LogReader(string filename, Encoding encoding)
+        public Reader(string filename, Encoding encoding)
         {
             fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             fileStream.Seek(0, SeekOrigin.End);
             streamReader = new StreamReader(fileStream, encoding);
-            task = Task.Run((Action)TaskMain);
+            task = Task.Factory.StartNew(TaskMain);
         }
 
         /// <summary>
@@ -40,9 +42,13 @@ namespace WindowsFormsApplication11
                 while (!streamReader.EndOfStream && isPower)
                 {
                     var line = streamReader.ReadLine();
-                    ReadLineRecieved?.Invoke(this, line);
+                    if (null != OnReadLineRecieved)
+                    {
+                        OnReadLineRecieved?.Invoke(this, new ReadLineEventArgs(line));
+                    }
                 }
-                Task.Delay(100).Wait();
+
+                Thread.Sleep(100);
             }
         }
 
@@ -55,6 +61,15 @@ namespace WindowsFormsApplication11
             task.Wait();
             streamReader.Dispose();
             fileStream.Dispose();
+        }
+    }
+
+    public class ReadLineEventArgs : EventArgs
+    {
+        public string Line { get; }
+        public ReadLineEventArgs(string line)
+        {
+            Line = line;
         }
     }
 }

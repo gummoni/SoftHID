@@ -4,10 +4,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace WindowsFormsApplication11
+namespace MacroLib.Outputs.Bitmaps
 {
     /// <summary>
     /// マッチング用画像データ格納クラス
+    /// 
+    /// tmp = new MatBitmap("TemplateImage");
+    /// cap = new MatBitmap(CaptureImage);
+    /// 
+    /// 検索する時
+    /// 　cap.Search(tmp);
     /// </summary>
     public class MatBitmap
     {
@@ -67,31 +73,7 @@ namespace WindowsFormsApplication11
         /// <param name="y2">右下Y座標</param>
         /// <param name="isCenter">結果座標を画像中央に寄せるか</param>
         /// <returns>見つかった位置</returns>
-        public Point Search(MatBitmap matchingBitmap, int x1, int y1, int x2, int y2, bool isCenter = false)
-        {
-            var lx = y2 - matchingBitmap.Width;
-            var ly = y2 - matchingBitmap.Height;
-
-            for (var y = y1; y < ly; y++)
-            {
-                for (var x = x1; x < lx; x++)
-                {
-                    if (IsMatching(matchingBitmap, x, y))
-                    {
-                        if (isCenter)
-                        {
-                            return new Point(x + matchingBitmap.Width / 2, y + matchingBitmap.Height / 2);
-                        }
-                        else
-                        {
-                            return new Point(x, y);
-                        }
-                    }
-                }
-            }
-
-            return new Point(0, 0);
-        }
+        public Point Search(MatBitmap matchingBitmap, int x1, int y1, int x2, int y2, bool isCenter = false) => Searches(matchingBitmap, x1, y1, x2, y2, isCenter)[0];
 
         /// <summary>
         /// 複数探す
@@ -113,17 +95,24 @@ namespace WindowsFormsApplication11
         /// <returns>見つかった位置</returns>
         public Point[] Searches(MatBitmap matchingBitmap, int x1, int y1, int x2, int y2, bool isCenter = false)
         {
-            var lx = y2 - matchingBitmap.Width;
+            var lx = x2 - matchingBitmap.Width;
             var ly = y2 - matchingBitmap.Height;
 
             var result = new List<Point>();
-            for (var y = y1; y < y2; y++)
+            for (var y = y1; y < ly; y++)
             {
-                for (var x = x1; x < x2; x++)
+                for (var x = x1; x < lx; x++)
                 {
                     if (IsMatching(matchingBitmap, x, y))
                     {
-                        result.Add(new Point(x, y));
+                        if (isCenter)
+                        {
+                            result.Add(new Point(x + matchingBitmap.Width / 2, y + matchingBitmap.Height / 2));
+                        }
+                        else
+                        {
+                            result.Add(new Point(x, y));
+                        }
                     }
                 }
             }

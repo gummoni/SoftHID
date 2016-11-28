@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace WindowsFormsApplication11
+namespace MacroLib
 {
-    internal static class Json
+    public static class Json
     {
         public static string ToString<T>(T model)
         {
@@ -91,11 +91,11 @@ namespace WindowsFormsApplication11
             var props = typeof(T).GetProperties();
             foreach (var prop in props)
             {
-                var value = prop.GetValue(model);
+                var value = prop.GetValue(model, null);
                 if (null == value)
                 {
-                    var opt = prop.GetCustomAttribute<OptionalAttribute>();
-                    var req = prop.GetCustomAttribute<RequiredAttribute>();
+                    var opt = prop.GetCustomAttributes(false).FirstOrDefault(_ => _.GetType() == typeof(OptionalAttribute));
+                    var req = prop.GetCustomAttributes(false).FirstOrDefault(_ => _.GetType() == typeof(RequiredAttribute));
 
                     if (null != opt)
                     {

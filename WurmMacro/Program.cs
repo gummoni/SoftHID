@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WindowsFormsApplication11
+namespace WurmMacro
 {
     static class Program
     {
@@ -13,7 +13,7 @@ namespace WindowsFormsApplication11
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new fmMain());
         }
     }
 }
