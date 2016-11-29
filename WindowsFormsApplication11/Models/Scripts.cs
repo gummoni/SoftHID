@@ -36,7 +36,7 @@ namespace MacroLib.Models
         public Script(string fullPath)
         {
             this.fullPath = fullPath;
-            ScriptName = Path.GetFileName(fullPath);
+            ScriptName = Path.GetFileNameWithoutExtension(fullPath);
         }
 
         public string[] GetScriptCode()

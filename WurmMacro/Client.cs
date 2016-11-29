@@ -1,14 +1,15 @@
 ﻿using MacroLib.Models;
 using MacroLib.Outputs.Bitmaps;
 using MacroLib.Outputs.Files;
-using SoftHID.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using MacroLib.Jobs;
 
 namespace MacroLib
 {
@@ -27,8 +28,6 @@ namespace MacroLib
     /// </summary>
     public class Client
     {
-        //TODO:タイマーが動くのを確認
-
         //Writing to d:\game\wurm\players\gummo\logs\_Friends.2016-11.txt
         public string ProcessName { get; set; } = "jp2launcher";
         readonly internal string matchingPath = "matching.txt";
@@ -39,6 +38,7 @@ namespace MacroLib
         string eventLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Event.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
         string combatLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Combat.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
         Thread timerThread { get; set; }
+        JobSpooler spooler = new JobSpooler();
 
         readonly Encoding encode = Encoding.GetEncoding(932);
         internal Controller controller;     // キー・マウス・画面操作
@@ -67,7 +67,8 @@ namespace MacroLib
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"スクリプトエラー:{script}" + "\r\n" + ex.Message);
+                var line = $"スクリプトエラー:{script}" + "\r\n" + ex.Message;
+                OnRecvLog?.Invoke(this, new RecvLogEventArgs(line));
             }
         }
 
@@ -75,6 +76,16 @@ namespace MacroLib
         {
             //ライン受信したからマッチング解析
             var line = ((ReadLineEventArgs)e).Line;
+            OnRecvLog?.Invoke(this, new RecvLogEventArgs(line));
+            matchings.DoEvents(line);
+        }
+
+        /// <summary>
+        /// デバッグ用メッセージセット
+        /// </summary>
+        /// <param name="line"></param>
+        internal void SetMessage(string line)
+        {
             OnRecvLog?.Invoke(this, new RecvLogEventArgs(line));
             matchings.DoEvents(line);
         }
@@ -90,7 +101,7 @@ namespace MacroLib
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"スクリプトエラー:{script}" + "\r\n" + ex.Message);
+                OnRecvLog?.Invoke(this, new RecvLogEventArgs($"スクリプトエラー:{script}" + "\r\n" + ex.Message));
             }
         }
 
@@ -99,16 +110,6 @@ namespace MacroLib
             methods = new Methods();
             methods.Add(typeof(Controller).GetMethods());
             methods.Add(typeof(Client).GetMethods());
-        }
-
-        public void Dispose()
-        {
-            if (!IsPower) return;
-            IsPower = false;
-            eventReader.OnReadLineRecieved -= OnReadLineRecieved;
-            combatReader.OnReadLineRecieved -= OnReadLineRecieved;
-            matchings.OnMatching -= Matchings_OnMatching;
-            timers.OnTimeOut -= OnTimeOut;
         }
 
         /// <summary>
@@ -163,6 +164,23 @@ namespace MacroLib
             timerThread = new Thread(TimerMain);
             timerThread.Start();
         }
+        public void Stop()
+        {
+            if (!IsPower) return;
+
+            IsPower = false;
+            eventReader.OnReadLineRecieved -= OnReadLineRecieved;
+            combatReader.OnReadLineRecieved -= OnReadLineRecieved;
+            matchings.OnMatching -= Matchings_OnMatching;
+            timers.OnTimeOut -= OnTimeOut;
+            spooler.Clear();
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            spooler.Dispose();
+        }
 
         /// <summary>
         /// マクロ実行
@@ -176,7 +194,7 @@ namespace MacroLib
                 {
                     Dispatch(line);
                 }
-                catch
+                catch (Exception)
                 {
                     throw new Exception(line);
                 }
@@ -192,20 +210,39 @@ namespace MacroLib
             if (!IsExecute) return;
             var commands = line.Trim().Split(',').Select(_ => _.Trim()).ToList();
             var command = commands[0];
+            var arguments = new List<object>();
             commands.RemoveAt(0);
-            var args = commands.Select(_ => (object)_).ToArray();
+            var len = commands.Count;
 
             var cli = typeof(Client).GetMethod(command);
             if (null != cli)
             {
-                cli.Invoke(this, args);
+                var prms = cli.GetParameters();
+                if (len != prms.Length) throw new ArgumentException("パラメータ数不一致");
+                for (var idx = 0; idx < len; idx++)
+                {
+                    //変換
+                    var value = Convert.Parse(prms[idx].ParameterType, commands[idx]);
+                    arguments.Add(value);
+                }
+
+                spooler.Add(new Job(() => { cli.Invoke(this, arguments.ToArray()); }));
                 return;
             }
 
             var com = typeof(Controller).GetMethod(command);
             if (null != com)
             {
-                com.Invoke(controller, args);
+                var prms = com.GetParameters();
+                if (len != prms.Length) throw new ArgumentException("パラメータ数不一致");
+                for (var idx = 0; idx < len; idx++)
+                {
+                    //変換
+                    var value = Convert.Parse(prms[idx].ParameterType, commands[idx]);
+                    arguments.Add(value);
+                }
+
+                spooler.Add(new Job(() => { com.Invoke(controller, arguments.ToArray()); }));
                 return;
             }
         }
@@ -238,7 +275,10 @@ namespace MacroLib
         [Command("タイマーをセットします")]
         public void SetTimer(string alarmName, string doScriptName, int timerCount)
         {
-            timers.Add(alarmName, doScriptName, timerCount);
+            lock (timers)
+            {
+                timers.Add(alarmName, doScriptName, timerCount);
+            }
         }
     }
 }

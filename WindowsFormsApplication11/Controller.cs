@@ -1,6 +1,6 @@
 ﻿using MacroLib.Inputs.GUI;
 using MacroLib.Outputs.HID;
-using SoftHID.Models;
+using MacroLib.Models;
 using System;
 using System.Threading;
 using System.Windows.Forms;

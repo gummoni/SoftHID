@@ -28,13 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.gbTest = new System.Windows.Forms.GroupBox();
             this.btTest = new System.Windows.Forms.Button();
             this.tbTest = new System.Windows.Forms.TextBox();
             this.btScript = new System.Windows.Forms.Button();
+            this.btSave = new System.Windows.Forms.Button();
             this.btStop = new System.Windows.Forms.Button();
             this.btStart = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -47,12 +48,12 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.lbScript = new System.Windows.Forms.ListBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.dgTimer = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.dgCommand = new System.Windows.Forms.DataGridView();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.pgSetting = new System.Windows.Forms.PropertyGrid();
-            this.btSave = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.tbTimer = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTest.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -60,7 +61,6 @@
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgTimer)).BeginInit();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgCommand)).BeginInit();
             this.tabPage1.SuspendLayout();
@@ -92,6 +92,7 @@
             // 
             // btTest
             // 
+            this.btTest.Enabled = false;
             this.btTest.Location = new System.Drawing.Point(297, 16);
             this.btTest.Name = "btTest";
             this.btTest.Size = new System.Drawing.Size(75, 23);
@@ -116,6 +117,16 @@
             this.btScript.Text = "スクリプトフォルダ";
             this.btScript.UseVisualStyleBackColor = true;
             this.btScript.Click += new System.EventHandler(this.btScript_Click);
+            // 
+            // btSave
+            // 
+            this.btSave.Location = new System.Drawing.Point(189, 12);
+            this.btSave.Name = "btSave";
+            this.btSave.Size = new System.Drawing.Size(75, 60);
+            this.btSave.TabIndex = 2;
+            this.btSave.Text = "設定保存";
+            this.btSave.UseVisualStyleBackColor = true;
+            this.btSave.Click += new System.EventHandler(this.btSave_Click);
             // 
             // btStop
             // 
@@ -235,28 +246,13 @@
             // 
             // tabPage5
             // 
-            this.tabPage5.Controls.Add(this.dgTimer);
+            this.tabPage5.Controls.Add(this.tbTimer);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Size = new System.Drawing.Size(852, 342);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "タイマー";
             this.tabPage5.UseVisualStyleBackColor = true;
-            // 
-            // dgTimer
-            // 
-            this.dgTimer.AllowUserToAddRows = false;
-            this.dgTimer.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.dgTimer.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-            this.dgTimer.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgTimer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgTimer.Location = new System.Drawing.Point(0, 0);
-            this.dgTimer.Name = "dgTimer";
-            this.dgTimer.ReadOnly = true;
-            this.dgTimer.RowTemplate.Height = 21;
-            this.dgTimer.Size = new System.Drawing.Size(852, 342);
-            this.dgTimer.TabIndex = 1;
             // 
             // tabPage2
             // 
@@ -273,8 +269,8 @@
             // 
             this.dgCommand.AllowUserToAddRows = false;
             this.dgCommand.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.dgCommand.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.dgCommand.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgCommand.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgCommand.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgCommand.Location = new System.Drawing.Point(3, 3);
@@ -304,15 +300,18 @@
             this.pgSetting.TabIndex = 0;
             this.pgSetting.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.pgSetting_PropertyValueChanged);
             // 
-            // btSave
+            // timer1
             // 
-            this.btSave.Location = new System.Drawing.Point(189, 12);
-            this.btSave.Name = "btSave";
-            this.btSave.Size = new System.Drawing.Size(75, 60);
-            this.btSave.TabIndex = 2;
-            this.btSave.Text = "設定保存";
-            this.btSave.UseVisualStyleBackColor = true;
-            this.btSave.Click += new System.EventHandler(this.btSave_Click);
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // tbTimer
+            // 
+            this.tbTimer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbTimer.Location = new System.Drawing.Point(0, 0);
+            this.tbTimer.Multiline = true;
+            this.tbTimer.Name = "tbTimer";
+            this.tbTimer.Size = new System.Drawing.Size(852, 342);
+            this.tbTimer.TabIndex = 0;
             // 
             // fmMain
             // 
@@ -335,7 +334,7 @@
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.tabPage5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgTimer)).EndInit();
+            this.tabPage5.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgCommand)).EndInit();
             this.tabPage1.ResumeLayout(false);
@@ -352,7 +351,6 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.PropertyGrid pgSetting;
         private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.DataGridView dgTimer;
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.TextBox tbLog;
         private System.Windows.Forms.Button btScript;
@@ -368,6 +366,8 @@
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.ListBox lbScript;
         private System.Windows.Forms.Button btSave;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TextBox tbTimer;
     }
 }
 

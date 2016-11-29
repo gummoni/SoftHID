@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace WurmMacro
@@ -19,7 +18,6 @@ namespace WurmMacro
             client = Client.Create();
             client.OnRecvLog += OnRecvLog;
             pgSetting.SelectedObject = client;
-            dgTimer.DataSource = client.timers;
             dgCommand.DataSource = client.methods;
 
             //トリガー読込み
@@ -66,6 +64,8 @@ namespace WurmMacro
                 client.IsExecute = true;
                 btStop.BackColor = Color.LightGray;
                 btStart.BackColor = Color.Lime;
+                btTest.Enabled = true;
+                timer1.Start();
             }
             catch (Exception ex)
             {
@@ -76,8 +76,10 @@ namespace WurmMacro
 
         private void btStop_Click(object sender, EventArgs e)
         {
+            timer1.Stop();
             client.IsExecute = false;
-            client.Dispose();
+            client.Stop();
+            btTest.Enabled = false;
             btStop.BackColor = Color.Lime;
             btStart.BackColor = Color.LightGray;
         }
@@ -113,9 +115,7 @@ namespace WurmMacro
         {
             //テストログ送信
             var message = tbTest.Text;
-            OnRecvLog(this, new RecvLogEventArgs(message));
-
-            var methods = typeof(Controller).GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            client.SetMessage(message);
         }
 
         private void pgSetting_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
@@ -141,6 +141,20 @@ namespace WurmMacro
         private void fmMain_FormClosed(object sender, FormClosedEventArgs e)
         {
             btStop_Click(null, null);
+            client.Dispose();
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (timer1.Enabled)
+            {
+                tbTimer.Text = client.timers.ToString();
+            }
+            else
+            {
+                tbTimer.Text = "";
+            }
+        }
+
     }
 }

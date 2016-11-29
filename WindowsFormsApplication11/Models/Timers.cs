@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace MacroLib.Models
 {
@@ -33,6 +34,11 @@ namespace MacroLib.Models
                 Add(new Timer(alarmName, doScript, timerCount));
             }
         }
+
+        public override string ToString()
+        {
+            return string.Join("\r\n", this.Select(_ => _.ToString()));
+        }
     }
 
     public class Timer : INotifyPropertyChanged
@@ -57,7 +63,7 @@ namespace MacroLib.Models
             {
                 var count = RestSeconds;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RestSeconds)));
-                return 0 >= DateTime.Now.Subtract(startTime).TotalSeconds - TimerCount;
+                return 0 >= count;
             }
         }
 
@@ -66,7 +72,7 @@ namespace MacroLib.Models
         {
             get
             {
-                var count = (int)DateTime.Now.Subtract(startTime).TotalSeconds - TimerCount;
+                var count = TimerCount - (int)DateTime.Now.Subtract(startTime).TotalSeconds;
                 if (0 > count) count = 0;
                 return count;
             }
@@ -84,6 +90,11 @@ namespace MacroLib.Models
             AlarmName = alarmName;
             DoScript = doScript;
             TimerCount = timerCount;
+        }
+
+        public override string ToString()
+        {
+            return $"・{AlarmName} 残り時間{RestSeconds}";
         }
     }
 

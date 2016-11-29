@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SoftHID.Models
+namespace MacroLib.Models
 {
     public static class AttributeExtensions
     {
