@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MacroLib.Models
@@ -18,10 +19,13 @@ namespace MacroLib.Models
             var lines = File.ReadAllLines(filename);
             foreach (var line in lines)
             {
-                var args = line.Split(',');
+                var text = Regex.Replace(line, "'.*$", "").Trim();
+                if (string.IsNullOrEmpty(text)) continue;
+
+                var args = text.Split(',').Select(_ => _.Trim()).ToArray();
                 if (2 == args.Length)
                 {
-                    Add(new Matching(args[0].Trim(), args[1].Trim()));
+                    Add(new Matching(args[0], args[1]));
                 }
             }
         }

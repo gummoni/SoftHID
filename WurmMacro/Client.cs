@@ -1,12 +1,14 @@
 ﻿using MacroLib.Models;
 using MacroLib.Outputs.Bitmaps;
 using MacroLib.Outputs.Files;
+using SoftHID.Models;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace MacroLib
 {
@@ -25,10 +27,12 @@ namespace MacroLib
     /// </summary>
     public class Client
     {
+        //TODO:タイマーが動くのを確認
+
         //Writing to d:\game\wurm\players\gummo\logs\_Friends.2016-11.txt
-        readonly public string ProcessName = "jp2launcher";
-        readonly string mattingPath = "matting.txt";
-        readonly string scriptsPath = Path.Combine(Environment.CurrentDirectory, "Scripts");
+        public string ProcessName { get; set; } = "jp2launcher";
+        readonly internal string matchingPath = "matching.txt";
+        readonly internal string scriptsPath = Path.Combine(Environment.CurrentDirectory, "Scripts");
         readonly string templatePath = Path.Combine(Environment.CurrentDirectory, "Templates");
         public string InstallPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "wurm", "players");
         public string UserName { get; set; } = "gummo";
@@ -44,6 +48,7 @@ namespace MacroLib
         internal Matchings matchings;       // マッチング一覧
         internal Timers timers;             // 実行中タイマー一覧
         internal MatBitmap[] templates;     // テンプレート画像
+        internal Methods methods;           // 命令一覧
 
         [Browsable(false)]
         public bool IsExecute { get; set; } = false;
@@ -55,7 +60,15 @@ namespace MacroLib
         {
             //タイムアウトしたから実行
             var script = ((TimeoutEventHandler)e).ScriptName;
-            Dispatch(scripts[script]);
+            try
+            {
+                OnRecvLog?.Invoke(this, new RecvLogEventArgs($"★OnTimeout->Do:{script}"));
+                Dispatch(scripts[script]);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"スクリプトエラー:{script}" + "\r\n" + ex.Message);
+            }
         }
 
         private void OnReadLineRecieved(object sender, EventArgs e)
@@ -70,12 +83,22 @@ namespace MacroLib
         {
             //マッチングしたから実行
             var script = ((MatchingEventArgs)e).ScriptName;
-            Dispatch(scripts[script]);
+            try
+            {
+                OnRecvLog?.Invoke(this, new RecvLogEventArgs($"★OnMatching->Do:{script}"));
+                Dispatch(scripts[script]);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"スクリプトエラー:{script}" + "\r\n" + ex.Message);
+            }
         }
 
-        public void SetTimer(string alarmName, string doScriptName, int timerCount)
+        public Client()
         {
-            timers.Add(alarmName, doScriptName, timerCount);
+            methods = new Methods();
+            methods.Add(typeof(Controller).GetMethods());
+            methods.Add(typeof(Client).GetMethods());
         }
 
         public void Dispose()
@@ -123,8 +146,8 @@ namespace MacroLib
             scripts = new Scripts(scriptsPath);
 
             //トリガー
-            if (!File.Exists(mattingPath)) File.WriteAllText(mattingPath, "");
-            matchings = new Matchings(mattingPath);
+            if (!File.Exists(matchingPath)) File.WriteAllText(matchingPath, "");
+            matchings = new Matchings(matchingPath);
             matchings.OnMatching += Matchings_OnMatching;
 
             //タイマー
@@ -149,7 +172,14 @@ namespace MacroLib
         {
             foreach (var line in lines)
             {
-                Dispatch(line);
+                try
+                {
+                    Dispatch(line);
+                }
+                catch
+                {
+                    throw new Exception(line);
+                }
             }
         }
 
@@ -164,13 +194,19 @@ namespace MacroLib
             var command = commands[0];
             commands.RemoveAt(0);
             var args = commands.Select(_ => (object)_).ToArray();
-            if (command == "SetTimer")
+
+            var cli = typeof(Client).GetMethod(command);
+            if (null != cli)
             {
-                typeof(Client).GetMethod(command)?.Invoke(this, args);
+                cli.Invoke(this, args);
+                return;
             }
-            else
+
+            var com = typeof(Controller).GetMethod(command);
+            if (null != com)
             {
-                typeof(Controller).GetMethod(command)?.Invoke(controller, args);
+                com.Invoke(controller, args);
+                return;
             }
         }
 
@@ -196,6 +232,13 @@ namespace MacroLib
         public void Save()
         {
             File.WriteAllText("setting.txt", Json.ToString(this, typeof(Client)));
+        }
+
+
+        [Command("タイマーをセットします")]
+        public void SetTimer(string alarmName, string doScriptName, int timerCount)
+        {
+            timers.Add(alarmName, doScriptName, timerCount);
         }
     }
 }

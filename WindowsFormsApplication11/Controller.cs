@@ -1,5 +1,6 @@
 ﻿using MacroLib.Inputs.GUI;
 using MacroLib.Outputs.HID;
+using SoftHID.Models;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,12 +34,19 @@ namespace MacroLib
             window = new Window(processName);
         }
 
-        public void Sleep(int delay) => Thread.Sleep(delay);
+        [Command("ウェイト処理")]
+        public void Sleep(int milliseconds) => Thread.Sleep(milliseconds);
+        [Command("アクティブ化します")]
         public void WindowActivate() => SetForegroundWindow(window.MainWindowHandle);
+        [Command("ウィンドウを閉じます")]
         public void WindowKill() => window.Kill();
-        public void KeyPress(string message) => Keyboard.KeyPress(message);
-        public void KeyDown(string message) => Keyboard.KeyDown(message);
-        public void KeyUp(string message) => Keyboard.KeyUp(message);
+        [Command("キー押下(複数文字OK)")]
+        public void KeyPress(string keys) => Keyboard.KeyPress(keys);
+        [Command("キー押す(複数文字OK)")]
+        public void KeyDown(string keys) => Keyboard.KeyDown(keys);
+        [Command("キー離す(複数文字OK)")]
+        public void KeyUp(string keys) => Keyboard.KeyUp(keys);
+        [Command("ウィンドウ内絶対値移動")]
         public void MouseMoveAbsolute(int x, int y)
         {
             RECT rect;
@@ -48,10 +56,14 @@ namespace MacroLib
             }
             Mouse.MoveAbsolute(rect.left + x, rect.top + y);
         }
-        public void MouseMoveRelative(int x, int y) => Mouse.MoveRelative(x, y);
+        [Command("相対値移動")]
+        public void MouseMoveRelative(int dx, int dy) => Mouse.MoveRelative(dx, dy);
+        [Command("左クリック")]
         public void MouseLeftClick() => Mouse.LeftClick();
+        [Command("右クリック")]
         public void MouseRightClick() => Mouse.MouseRightClick();
 
+        [Command("ポップアップ表示")]
         public void ShoeMessageBox(string message)
         {
             MessageBox.Show(message);

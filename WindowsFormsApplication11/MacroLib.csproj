@@ -58,6 +58,7 @@
     <Compile Include="Inputs\HID\Hook.cs" />
     <Compile Include="Inputs\GUI\WinAPI.cs" />
     <Compile Include="Models\Matchings.cs" />
+    <Compile Include="Models\Methods.cs" />
     <Compile Include="Outputs\HID\Mouse.cs" />
     <Compile Include="Outputs\HID\WinAPI.cs" />
     <Compile Include="Controller.cs" />

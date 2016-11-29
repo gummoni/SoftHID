@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace MacroLib.Models
 {
@@ -34,13 +35,49 @@ namespace MacroLib.Models
         }
     }
 
-    public class Timer
+    public class Timer : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [DisplayName("タイマー名")]
         public string AlarmName { get; set; }
+
+        [Browsable(false)]
         public string DoScript { get; set; }
+
+        [Browsable(false)]
         public int TimerCount { get; set; }
+
         DateTime startTime;
 
+        [Browsable(false)]
+        public bool IsTimeout
+        {
+            get
+            {
+                var count = RestSeconds;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RestSeconds)));
+                return 0 >= DateTime.Now.Subtract(startTime).TotalSeconds - TimerCount;
+            }
+        }
+
+        [DisplayName("残り時間")]
+        public int RestSeconds
+        {
+            get
+            {
+                var count = (int)DateTime.Now.Subtract(startTime).TotalSeconds - TimerCount;
+                if (0 > count) count = 0;
+                return count;
+            }
+        }
+
+        /// <summary>
+        /// コンストラクタ処理
+        /// </summary>
+        /// <param name="alarmName"></param>
+        /// <param name="doScript"></param>
+        /// <param name="timerCount"></param>
         public Timer(string alarmName, string doScript, int timerCount)
         {
             startTime = DateTime.Now;
@@ -48,8 +85,6 @@ namespace MacroLib.Models
             DoScript = doScript;
             TimerCount = timerCount;
         }
-
-        public bool IsTimeout => 0 >= DateTime.Now.Subtract(startTime).TotalSeconds - TimerCount;
     }
 
     public class TimeoutEventHandler : EventArgs

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MacroLib.Models
 {
@@ -27,6 +28,7 @@ namespace MacroLib.Models
 
     public class Script
     {
+        static Regex regComment = new Regex("'.*$");
         public string ScriptName { get; }
 
         string fullPath;
@@ -39,7 +41,7 @@ namespace MacroLib.Models
 
         public string[] GetScriptCode()
         {
-            return File.ReadAllLines(fullPath);
+            return File.ReadAllLines(fullPath).Select(_=> regComment.Replace(_, "").Trim()).Where(_=>!string.IsNullOrWhiteSpace(_)).ToArray();
         }
     }
 }
