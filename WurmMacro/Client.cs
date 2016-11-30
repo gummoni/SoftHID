@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MacroLib.Jobs;
+using System.Windows.Forms;
 
 namespace MacroLib
 {
@@ -27,13 +28,33 @@ namespace MacroLib
     /// </summary>
     public class Client
     {
+        #region "テンプレート画像管理"
+        Dictionary<string, MatBitmap> images = new Dictionary<string, MatBitmap>();
+        /// <summary>
+        /// 画像取得
+        /// </summary>
+        /// <param name="imageName"></param>
+        /// <returns></returns>
+        MatBitmap GetImage(string imageName)
+        {
+            if (!images.ContainsKey(imageName))
+            {
+                images[imageName] = new MatBitmap($".\\Templates\\{imageName}.bmp");
+            }
+            return images[imageName];
+        }
+        #endregion
+
+
         //Writing to d:\game\wurm\players\gummo\logs\_Friends.2016-11.txt
         public string ProcessName { get; set; } = "jp2launcher";
         readonly internal string matchingPath = "matching.txt";
+        readonly internal string passivesPath = Path.Combine(Environment.CurrentDirectory, "Passives");
         readonly internal string scriptsPath = Path.Combine(Environment.CurrentDirectory, "Scripts");
         readonly string templatePath = Path.Combine(Environment.CurrentDirectory, "Templates");
         public string InstallPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "wurm", "players");
         public string UserName { get; set; } = "gummo";
+        public string PassiveScript { get; set; }   //ユーザー設定(起動するパッシブスクリプトは選択してもらう)
         string eventLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Event.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
         string combatLogPath => Directory.GetFiles(Path.Combine(InstallPath, UserName, "logs")).FirstOrDefault(_ => _.Contains($"_Combat.{DateTime.Now.Year}-{DateTime.Now.Month}.txt"));
         Thread timerThread { get; set; }
@@ -43,6 +64,7 @@ namespace MacroLib
         internal Controller controller;     // キー・マウス・画面操作
         internal Reader eventReader;        // イベントログ
         internal Reader combatReader;       // コンバットログ
+        internal Passives passives;         // パッシブ一覧
         internal Scripts scripts;           // スクリプト一覧
         internal Matchings matchings;       // マッチング一覧
         internal Timers timers;             // 実行中タイマー一覧
@@ -55,6 +77,11 @@ namespace MacroLib
 
         public event EventHandler OnRecvLog;
 
+        /// <summary>
+        /// スケジューラタイムアウトイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnTimeOut(object sender, EventArgs e)
         {
             //タイムアウトしたから実行
@@ -71,6 +98,11 @@ namespace MacroLib
             }
         }
 
+        /// <summary>
+        /// ログ受信イベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnReadLineRecieved(object sender, EventArgs e)
         {
             //ライン受信したからマッチング解析
@@ -89,6 +121,11 @@ namespace MacroLib
             matchings.DoEvents(line);
         }
 
+        /// <summary>
+        /// テキストマッチングイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Matchings_OnMatching(object sender, EventArgs e)
         {
             //マッチングしたから実行
@@ -103,7 +140,10 @@ namespace MacroLib
                 OnRecvLog?.Invoke(this, new RecvLogEventArgs($"スクリプトエラー:{script}" + "\r\n" + ex.Message));
             }
         }
-
+        
+        /// <summary>
+        /// コンストラクタ処理
+        /// </summary>
         public Client()
         {
             methods = new Methods();
@@ -118,6 +158,7 @@ namespace MacroLib
         {
             while (IsPower)
             {
+                Dispatch(passives[PassiveScript]);
                 timers.DoEvents();
                 Thread.Sleep(100);
             }
@@ -130,6 +171,7 @@ namespace MacroLib
         {
             if (IsPower) return;
 
+            if (!Directory.Exists(passivesPath)) Directory.CreateDirectory(passivesPath);
             if (!Directory.Exists(scriptsPath)) Directory.CreateDirectory(scriptsPath);
             if (!Directory.Exists(templatePath)) Directory.CreateDirectory(templatePath);
 
@@ -143,6 +185,7 @@ namespace MacroLib
             combatReader.OnReadLineRecieved += OnReadLineRecieved;
 
             //スクリプト
+            passives = new Passives(passivesPath);
             scripts = new Scripts(scriptsPath);
 
             //トリガー
@@ -163,6 +206,10 @@ namespace MacroLib
             timerThread = new Thread(TimerMain);
             timerThread.Start();
         }
+
+        /// <summary>
+        /// 停止処理
+        /// </summary>
         public void Stop()
         {
             if (!IsPower) return;
@@ -175,6 +222,9 @@ namespace MacroLib
             spooler.Clear();
         }
 
+        /// <summary>
+        /// 開放処理
+        /// </summary>
         public void Dispose()
         {
             Stop();
@@ -187,6 +237,8 @@ namespace MacroLib
         /// <param name="lines"></param>
         void Dispatch(string[] lines)
         {
+            if (null == lines) return;
+
             foreach (var line in lines)
             {
                 try
@@ -270,13 +322,88 @@ namespace MacroLib
             File.WriteAllText("setting.txt", Json.ToString(this, typeof(Client)));
         }
 
-
+        /// <summary>
+        /// タイマーセット
+        /// </summary>
+        /// <param name="alarmName"></param>
+        /// <param name="doScriptName"></param>
+        /// <param name="timerCount"></param>
         [Command("タイマーをセットします")]
-        public void SetTimer(string alarmName, string doScriptName, int timerCount)
+        public void TimerSet(string alarmName, string doScriptName, int timerCount)
         {
             lock (timers)
             {
                 timers.Add(alarmName, doScriptName, timerCount);
+            }
+        }
+
+        [Command("タイマーを停止します")]
+        public void TimerStop(string alarmName)
+        {
+            lock (timers)
+            {
+                var model = timers.FirstOrDefault(_=>_.AlarmName == alarmName);
+                if (null != model)
+                {
+                    timers.Remove(model);
+                }
+            }
+        }
+
+        [Command("タイマーが起動していたらスクリプトを実行します")]
+        public void TimerOnStart(string alarmName, string scriptName)
+        {
+            lock (timers)
+            {
+                var model = timers.FirstOrDefault(_ => _.AlarmName == alarmName);
+                if (null != model)
+                {
+                    Dispatch(scripts[scriptName]);
+                }
+            }
+        }
+
+        [Command("タイマーが停止していたらスクリプトを実行します")]
+        public void TimerOffStart(string alarmName, string scriptName)
+        {
+            lock (timers)
+            {
+                var model = timers.FirstOrDefault(_ => _.AlarmName == alarmName);
+                if (null == model)
+                {
+                    Dispatch(scripts[scriptName]);
+                }
+            }
+        }
+
+        [Command("画像マッチングしたらカーソル移動")]
+        public void IconMove(string imageName)
+        {
+            try
+            {
+                var tempImage = GetImage(imageName);
+                var pos = controller.Snapshot().Search(tempImage);
+                Cursor.Position = pos;
+            }
+            catch
+            {
+                //見つからなかった
+            }
+        }
+
+        [Command("画像マッチングしたらカーソル移動してからスクリプト実行")]
+        public void IconMoveStart(string imageName, string doScript)
+        {
+            try
+            {
+                var tempImage = GetImage(imageName);
+                var pos = controller.Snapshot().Search(tempImage, true);
+                Cursor.Position = pos;
+                Dispatch(scripts[doScript]);
+            }
+            catch
+            {
+                //見つからなかった
             }
         }
     }

@@ -43,22 +43,27 @@
             this.tbLog = new System.Windows.Forms.TextBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tbTrigger = new System.Windows.Forms.TextBox();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.tbPassive = new System.Windows.Forms.TextBox();
+            this.splitter2 = new System.Windows.Forms.Splitter();
+            this.lbPassive = new System.Windows.Forms.ListBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.tbScript = new System.Windows.Forms.TextBox();
+            this.tbActive = new System.Windows.Forms.TextBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.lbScript = new System.Windows.Forms.ListBox();
+            this.lbActive = new System.Windows.Forms.ListBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.tbTimer = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.dgCommand = new System.Windows.Forms.DataGridView();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.pgSetting = new System.Windows.Forms.PropertyGrid();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.tbTimer = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTest.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage7.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -153,6 +158,7 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage7);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -203,27 +209,69 @@
             this.tbTrigger.Size = new System.Drawing.Size(846, 336);
             this.tbTrigger.TabIndex = 0;
             // 
+            // tabPage7
+            // 
+            this.tabPage7.Controls.Add(this.tbPassive);
+            this.tabPage7.Controls.Add(this.splitter2);
+            this.tabPage7.Controls.Add(this.lbPassive);
+            this.tabPage7.Location = new System.Drawing.Point(4, 22);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage7.Size = new System.Drawing.Size(852, 342);
+            this.tabPage7.TabIndex = 9;
+            this.tabPage7.Text = "常時実行";
+            this.tabPage7.UseVisualStyleBackColor = true;
+            // 
+            // tbPassive
+            // 
+            this.tbPassive.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbPassive.Location = new System.Drawing.Point(175, 3);
+            this.tbPassive.Multiline = true;
+            this.tbPassive.Name = "tbPassive";
+            this.tbPassive.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.tbPassive.Size = new System.Drawing.Size(674, 336);
+            this.tbPassive.TabIndex = 5;
+            // 
+            // splitter2
+            // 
+            this.splitter2.Location = new System.Drawing.Point(167, 3);
+            this.splitter2.Name = "splitter2";
+            this.splitter2.Size = new System.Drawing.Size(8, 336);
+            this.splitter2.TabIndex = 4;
+            this.splitter2.TabStop = false;
+            // 
+            // lbPassive
+            // 
+            this.lbPassive.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lbPassive.FormattingEnabled = true;
+            this.lbPassive.ItemHeight = 12;
+            this.lbPassive.Location = new System.Drawing.Point(3, 3);
+            this.lbPassive.Name = "lbPassive";
+            this.lbPassive.Size = new System.Drawing.Size(164, 336);
+            this.lbPassive.TabIndex = 3;
+            this.lbPassive.SelectedIndexChanged += new System.EventHandler(this.lbPassive_SelectedIndexChanged);
+            // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.tbScript);
+            this.tabPage4.Controls.Add(this.tbActive);
             this.tabPage4.Controls.Add(this.splitter1);
-            this.tabPage4.Controls.Add(this.lbScript);
+            this.tabPage4.Controls.Add(this.lbActive);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(852, 342);
             this.tabPage4.TabIndex = 8;
-            this.tabPage4.Text = "マクロ";
+            this.tabPage4.Text = "スクリプト";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // tbScript
+            // tbActive
             // 
-            this.tbScript.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbScript.Location = new System.Drawing.Point(172, 0);
-            this.tbScript.Multiline = true;
-            this.tbScript.Name = "tbScript";
-            this.tbScript.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbScript.Size = new System.Drawing.Size(680, 342);
-            this.tbScript.TabIndex = 2;
+            this.tbActive.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbActive.Location = new System.Drawing.Point(172, 0);
+            this.tbActive.Multiline = true;
+            this.tbActive.Name = "tbActive";
+            this.tbActive.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.tbActive.Size = new System.Drawing.Size(680, 342);
+            this.tbActive.TabIndex = 2;
             // 
             // splitter1
             // 
@@ -233,16 +281,16 @@
             this.splitter1.TabIndex = 1;
             this.splitter1.TabStop = false;
             // 
-            // lbScript
+            // lbActive
             // 
-            this.lbScript.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lbScript.FormattingEnabled = true;
-            this.lbScript.ItemHeight = 12;
-            this.lbScript.Location = new System.Drawing.Point(0, 0);
-            this.lbScript.Name = "lbScript";
-            this.lbScript.Size = new System.Drawing.Size(164, 342);
-            this.lbScript.TabIndex = 0;
-            this.lbScript.SelectedIndexChanged += new System.EventHandler(this.lbScript_SelectedIndexChanged);
+            this.lbActive.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lbActive.FormattingEnabled = true;
+            this.lbActive.ItemHeight = 12;
+            this.lbActive.Location = new System.Drawing.Point(0, 0);
+            this.lbActive.Name = "lbActive";
+            this.lbActive.Size = new System.Drawing.Size(164, 342);
+            this.lbActive.TabIndex = 0;
+            this.lbActive.SelectedIndexChanged += new System.EventHandler(this.lbScript_SelectedIndexChanged);
             // 
             // tabPage5
             // 
@@ -253,6 +301,15 @@
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "タイマー";
             this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // tbTimer
+            // 
+            this.tbTimer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbTimer.Location = new System.Drawing.Point(0, 0);
+            this.tbTimer.Multiline = true;
+            this.tbTimer.Name = "tbTimer";
+            this.tbTimer.Size = new System.Drawing.Size(852, 342);
+            this.tbTimer.TabIndex = 0;
             // 
             // tabPage2
             // 
@@ -271,6 +328,7 @@
             this.dgCommand.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.dgCommand.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dgCommand.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgCommand.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgCommand.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgCommand.Location = new System.Drawing.Point(3, 3);
@@ -304,15 +362,6 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // tbTimer
-            // 
-            this.tbTimer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbTimer.Location = new System.Drawing.Point(0, 0);
-            this.tbTimer.Multiline = true;
-            this.tbTimer.Name = "tbTimer";
-            this.tbTimer.Size = new System.Drawing.Size(852, 342);
-            this.tbTimer.TabIndex = 0;
-            // 
             // fmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -331,6 +380,8 @@
             this.tabPage6.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage7.ResumeLayout(false);
+            this.tabPage7.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.tabPage5.ResumeLayout(false);
@@ -362,12 +413,16 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TextBox tbTrigger;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.TextBox tbScript;
+        private System.Windows.Forms.TextBox tbActive;
         private System.Windows.Forms.Splitter splitter1;
-        private System.Windows.Forms.ListBox lbScript;
+        private System.Windows.Forms.ListBox lbActive;
         private System.Windows.Forms.Button btSave;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.TextBox tbTimer;
+        private System.Windows.Forms.TabPage tabPage7;
+        private System.Windows.Forms.TextBox tbPassive;
+        private System.Windows.Forms.Splitter splitter2;
+        private System.Windows.Forms.ListBox lbPassive;
     }
 }
 

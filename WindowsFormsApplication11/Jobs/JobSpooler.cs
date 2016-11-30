@@ -7,7 +7,7 @@ namespace MacroLib.Jobs
     public class JobSpooler : IDisposable
     {
         Thread thread;
-        Queue<Job> queues = new Queue<Job>();
+        List<Job> queues = new List<Job>();
         bool isPower;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace MacroLib.Jobs
         {
             lock (queues)
             {
-                queues.Enqueue(job);
+                queues.Add(job);
             }
         }
 
@@ -39,7 +39,15 @@ namespace MacroLib.Jobs
         {
             lock (queues)
             {
-                return (0 < queues.Count) ? queues.Dequeue() : null;
+                if (0 < queues.Count)
+                {
+                    //時間割込み
+                    //順当な実行
+                    var result = queues[0];
+                    queues.RemoveAt(0);
+                    return result;
+                }
+                return null;
             }
         }
 

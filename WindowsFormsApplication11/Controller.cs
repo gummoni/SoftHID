@@ -5,6 +5,9 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using static MacroLib.Inputs.GUI.WinAPI;
+using MacroLib.Outputs.Bitmaps;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace MacroLib
 {
@@ -27,6 +30,7 @@ namespace MacroLib
     /// </summary>
     public class Controller
     {
+        Dictionary<string, Point> positions = new Dictionary<string, Point>();
         Window window;
 
         public Controller(string processName)
@@ -64,9 +68,24 @@ namespace MacroLib
         public void MouseRightClick() => Mouse.MouseRightClick();
 
         [Command("ポップアップ表示")]
-        public void ShoeMessageBox(string message)
+        public void Popup(string message)
         {
             MessageBox.Show(message);
         }
+
+
+        [Command("現在のカーソル位置を記録する")]
+        public void PositionSave(string posName)
+        {
+            positions[posName] = Cursor.Position;
+        }
+
+        [Command("記録したカーソル位置に移動する")]
+        public void PositionLoad(string posName)
+        {
+            Cursor.Position = positions[posName];
+        }
+
+        public MatBitmap Snapshot() => window.Snapshot();
     }
 }

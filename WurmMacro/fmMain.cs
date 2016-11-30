@@ -25,8 +25,8 @@ namespace WurmMacro
             //マクロ読込み
             var files = Directory.GetFiles(client.scriptsPath, "*.txt", SearchOption.TopDirectoryOnly);
             var items = files.Select(_ => Path.GetFileNameWithoutExtension(_)).ToArray();
-            lbScript.Items.Clear();
-            lbScript.Items.AddRange(items);
+            lbActive.Items.Clear();
+            lbActive.Items.AddRange(items);
         }
 
         private void OnRecvLog(object sender, EventArgs e)
@@ -99,14 +99,26 @@ namespace WurmMacro
             SaveScript();
         }
 
-        int selectedIndex = -1;
+        int selectedScriptIndex = -1;
         void SaveScript()
         {
-            if (0 <= selectedIndex)
+            if (0 <= selectedScriptIndex)
             {
                 //保存
-                var path = Path.Combine(client.scriptsPath, $"{(string)lbScript.Items[selectedIndex]}.txt");
-                var text = tbScript.Text;
+                var path = Path.Combine(client.scriptsPath, $"{(string)lbActive.Items[selectedScriptIndex]}.txt");
+                var text = tbActive.Text;
+                File.WriteAllText(path, text);
+            }
+        }
+
+        int selectedPassiveIndex = -1;
+        void SavePassive()
+        {
+            if (0 <= selectedPassiveIndex)
+            {
+                //保存
+                var path = Path.Combine(client.passivesPath, $"{(string)lbActive.Items[selectedPassiveIndex]}.txt");
+                var text = tbActive.Text;
                 File.WriteAllText(path, text);
             }
         }
@@ -132,10 +144,29 @@ namespace WurmMacro
             SaveScript();
 
             //次のスクリプトを読み込む
-            selectedIndex = lbScript.SelectedIndex;
-            var path = Path.Combine(client.scriptsPath, $"{(string)lbScript.Items[selectedIndex]}.txt");
+            selectedScriptIndex = lbActive.SelectedIndex;
+            var scriptName = (string)lbActive.Items[selectedScriptIndex];
+            var path = Path.Combine(client.scriptsPath, $"{scriptName}.txt");
             var text = File.ReadAllText(path);
-            tbScript.Text = text;
+            tbActive.Text = text;
+        }
+
+        private void lbPassive_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //パッシブリストビューの選択項目が変更された
+
+            //現在編集中のスクリプトを保存する
+            SavePassive();
+
+            //次のスクリプトを読み込む
+            selectedPassiveIndex = lbPassive.SelectedIndex;
+            var passiveName = (string)lbPassive.Items[selectedPassiveIndex];
+            var path = Path.Combine(client.passivesPath, $"{passiveName}.txt");
+            var text = File.ReadAllText(path);
+            tbActive.Text = text;
+
+            //クライアントに実行するパッシブスクリプトを伝える
+            client.PassiveScript = passiveName;
         }
 
         private void fmMain_FormClosed(object sender, FormClosedEventArgs e)
@@ -155,6 +186,5 @@ namespace WurmMacro
                 tbTimer.Text = "";
             }
         }
-
     }
 }

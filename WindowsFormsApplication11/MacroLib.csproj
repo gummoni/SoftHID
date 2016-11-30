@@ -61,6 +61,7 @@
     <Compile Include="Jobs\JobSpooler.cs" />
     <Compile Include="Models\Matchings.cs" />
     <Compile Include="Models\Methods.cs" />
+    <Compile Include="Models\Passives.cs" />
     <Compile Include="Outputs\HID\Mouse.cs" />
     <Compile Include="Outputs\HID\WinAPI.cs" />
     <Compile Include="Controller.cs" />
