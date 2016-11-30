@@ -40,6 +40,7 @@
             this.btStart = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.tbMemo = new System.Windows.Forms.TextBox();
             this.tbLog = new System.Windows.Forms.TextBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tbTrigger = new System.Windows.Forms.TextBox();
@@ -55,9 +56,11 @@
             this.tbTimer = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.dgCommand = new System.Windows.Forms.DataGridView();
+            this.tabPage8 = new System.Windows.Forms.TabPage();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.pgSetting = new System.Windows.Forms.PropertyGrid();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.btReadme = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTest.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -73,6 +76,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btReadme);
             this.panel1.Controls.Add(this.gbTest);
             this.panel1.Controls.Add(this.btScript);
             this.panel1.Controls.Add(this.btSave);
@@ -162,6 +166,7 @@
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage8);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 78);
@@ -172,6 +177,7 @@
             // 
             // tabPage6
             // 
+            this.tabPage6.Controls.Add(this.tbMemo);
             this.tabPage6.Controls.Add(this.tbLog);
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
@@ -179,6 +185,15 @@
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "ログ";
             this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // tbMemo
+            // 
+            this.tbMemo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbMemo.Location = new System.Drawing.Point(0, 0);
+            this.tbMemo.Multiline = true;
+            this.tbMemo.Name = "tbMemo";
+            this.tbMemo.Size = new System.Drawing.Size(852, 342);
+            this.tbMemo.TabIndex = 2;
             // 
             // tbLog
             // 
@@ -338,6 +353,16 @@
             this.dgCommand.Size = new System.Drawing.Size(846, 336);
             this.dgCommand.TabIndex = 2;
             // 
+            // tabPage8
+            // 
+            this.tabPage8.Location = new System.Drawing.Point(4, 22);
+            this.tabPage8.Name = "tabPage8";
+            this.tabPage8.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage8.Size = new System.Drawing.Size(852, 342);
+            this.tabPage8.TabIndex = 10;
+            this.tabPage8.Text = "メモ";
+            this.tabPage8.UseVisualStyleBackColor = true;
+            // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.pgSetting);
@@ -361,6 +386,16 @@
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // btReadme
+            // 
+            this.btReadme.Location = new System.Drawing.Point(771, 12);
+            this.btReadme.Name = "btReadme";
+            this.btReadme.Size = new System.Drawing.Size(75, 60);
+            this.btReadme.TabIndex = 8;
+            this.btReadme.Text = "readme";
+            this.btReadme.UseVisualStyleBackColor = true;
+            this.btReadme.Click += new System.EventHandler(this.btReadme_Click);
             // 
             // fmMain
             // 
@@ -423,6 +458,9 @@
         private System.Windows.Forms.TextBox tbPassive;
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.ListBox lbPassive;
+        private System.Windows.Forms.TextBox tbMemo;
+        private System.Windows.Forms.TabPage tabPage8;
+        private System.Windows.Forms.Button btReadme;
     }
 }
 

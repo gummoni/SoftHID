@@ -32,11 +32,12 @@ namespace MacroLib.Models
 
         public void DoEvents(string line)
         {
-            foreach (var mat in this)
+            foreach (var matching in this)
             {
-                if (mat.IsMatching(line))
+                var mat = matching.Match(line);
+                if (mat.Success)
                 {
-                    OnMatching?.Invoke(mat, new MatchingEventArgs(mat.Script));
+                    OnMatching?.Invoke(mat, new MatchingEventArgs(line, mat, matching.Script));
                 }
             }
         }
@@ -53,18 +54,22 @@ namespace MacroLib.Models
             Script = script;
         }
 
-        public bool IsMatching(string line)
+        public Match Match(string line)
         {
-            return reg.IsMatch(line);
+            return reg.Match(line);
         }
     }
 
     public class MatchingEventArgs : EventArgs
     {
+        public string Line { get; }
+        public Match Match { get; }
         public string ScriptName { get; }
 
-        public MatchingEventArgs(string scriptNmae)
+        public MatchingEventArgs(string line, Match match, string scriptNmae)
         {
+            Line = line;
+            Match = match;
             ScriptName = scriptNmae;
         }
     }

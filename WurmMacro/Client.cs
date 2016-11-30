@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using MacroLib.Jobs;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace MacroLib
 {
@@ -75,7 +76,10 @@ namespace MacroLib
         public bool IsExecute { get; set; } = false;
         bool IsPower = false;
 
+        Match match;                        //メモ用マッチングしたデータ
+
         public event EventHandler OnRecvLog;
+        public event EventHandler OnRecvMemo;
 
         /// <summary>
         /// スケジューラタイムアウトイベント
@@ -130,6 +134,7 @@ namespace MacroLib
         {
             //マッチングしたから実行
             var script = ((MatchingEventArgs)e).ScriptName;
+            match = ((MatchingEventArgs)e).Match;
             try
             {
                 OnRecvLog?.Invoke(this, new RecvLogEventArgs($"★OnMatching->Do:{script}"));
@@ -405,6 +410,13 @@ namespace MacroLib
             {
                 //見つからなかった
             }
+        }
+
+        [Command("マッチングパターンでマッチした文字列をメモする")]
+        public void WriteMemo(string groupName)
+        {
+            var line = match.Groups[groupName].Value;
+            OnRecvMemo?.Invoke(this, new RecvLogEventArgs(line));
         }
     }
 }

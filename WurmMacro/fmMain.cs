@@ -17,6 +17,7 @@ namespace WurmMacro
 
             client = Client.Create();
             client.OnRecvLog += OnRecvLog;
+            client.OnRecvMemo += OnRecvMemo;
             pgSetting.SelectedObject = client;
             dgCommand.DataSource = client.methods;
 
@@ -36,6 +37,13 @@ namespace WurmMacro
             SetLog(line);
         }
 
+        private void OnRecvMemo(object sender, EventArgs e)
+        {
+            //メモ受信
+            var line = ((RecvLogEventArgs)e).Line;
+            SetMemo(line);
+        }
+
         delegate void dlgSetLog(string line);
         void SetLog(string line)
         {
@@ -53,6 +61,18 @@ namespace WurmMacro
                 {
                     tbLog.Text += line + "\r\n";
                 }
+            }
+        }
+        delegate void dlgSetMemo(string line);
+        void SetMemo(string line)
+        {
+            if (tbMemo.InvokeRequired)
+            {
+                tbLog.Invoke((dlgSetLog)SetLog, new[] { line });
+            }
+            else
+            {
+                tbMemo.Text += line + "\r\n";
             }
         }
 
@@ -97,6 +117,7 @@ namespace WurmMacro
 
             //マクロ保存(選択中のマクロを保存)
             SaveScript();
+            SavePassive();
         }
 
         int selectedScriptIndex = -1;
@@ -185,6 +206,11 @@ namespace WurmMacro
             {
                 tbTimer.Text = "";
             }
+        }
+
+        private void btReadme_Click(object sender, EventArgs e)
+        {
+            Process.Start("readme.txt");
         }
     }
 }
