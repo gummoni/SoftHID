@@ -33,6 +33,10 @@ namespace MacroLib
         Dictionary<string, Point> positions = new Dictionary<string, Point>();
         Window window;
 
+        /// <summary>
+        /// コンストラクタ処理
+        /// </summary>
+        /// <param name="processName"></param>
         public Controller(string processName)
         {
             window = new Window(processName);
@@ -40,17 +44,23 @@ namespace MacroLib
 
         [Command("ウェイト処理")]
         public void Sleep(int milliseconds) => Thread.Sleep(milliseconds);
-        [Command("アクティブ化します")]
+
+        [Command("ウィンドウをアクティブ化します")]
         public void WindowActivate() => SetForegroundWindow(window.MainWindowHandle);
+
         [Command("ウィンドウを閉じます")]
         public void WindowKill() => window.Kill();
+
         [Command("キー押下(複数文字OK)")]
         public void KeyPress(string keys) => Keyboard.KeyPress(keys);
+
         [Command("キー押す(複数文字OK)")]
         public void KeyDown(string keys) => Keyboard.KeyDown(keys);
+
         [Command("キー離す(複数文字OK)")]
         public void KeyUp(string keys) => Keyboard.KeyUp(keys);
-        [Command("ウィンドウ内絶対値移動")]
+
+        [Command("マウス位置のウィンドウ内絶対値移動")]
         public void MouseMoveAbsolute(int x, int y)
         {
             RECT rect;
@@ -60,11 +70,14 @@ namespace MacroLib
             }
             Mouse.MoveAbsolute(rect.left + x, rect.top + y);
         }
-        [Command("相対値移動")]
+
+        [Command("マウス位置の相対値移動")]
         public void MouseMoveRelative(int dx, int dy) => Mouse.MoveRelative(dx, dy);
-        [Command("左クリック")]
+
+        [Command("マウス左クリック")]
         public void MouseLeftClick() => Mouse.LeftClick();
-        [Command("右クリック")]
+
+        [Command("マウス右クリック")]
         public void MouseRightClick() => Mouse.MouseRightClick();
 
         [Command("ポップアップ表示")]
@@ -73,19 +86,22 @@ namespace MacroLib
             MessageBox.Show(message);
         }
 
-
-        [Command("現在のカーソル位置を記録する")]
+        [Command("カーソル位置を記録する")]
         public void PositionSave(string posName)
         {
             positions[posName] = Cursor.Position;
         }
 
-        [Command("記録したカーソル位置に移動する")]
+        [Command("カーソル位置を復元する")]
         public void PositionLoad(string posName)
         {
             Cursor.Position = positions[posName];
         }
 
+        /// <summary>
+        /// 画像キャプチャ
+        /// </summary>
+        /// <returns></returns>
         public MatBitmap Snapshot() => window.Snapshot();
     }
 }
